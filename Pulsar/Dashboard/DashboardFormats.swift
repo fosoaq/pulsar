@@ -50,11 +50,12 @@ enum DashboardFormats {
         value.map { String($0) } ?? ""
     }
 
-    /// Quotes a field when it holds a comma, quote or line break; a leading formula
-    /// character is neutralized so spreadsheets do not evaluate it.
+    /// Quotes a field when it holds a comma, quote or line break; a formula character at the
+    /// start, even after spaces, is neutralized so spreadsheets do not evaluate it.
     private static func field(_ value: String) -> String {
         var value = value
-        if let first = value.first, "=+-@".contains(first), Double(value) == nil {
+        let first = value.first { !$0.isWhitespace || $0 == "\t" || $0 == "\r" }
+        if let first, "=+-@\t\r".contains(first), Double(value) == nil {
             value = "'" + value
         }
         guard value.contains(where: { ",\"\r\n".contains($0) }) else { return value }

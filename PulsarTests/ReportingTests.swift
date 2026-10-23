@@ -47,6 +47,22 @@ struct DashboardFormatsTests {
         #expect(lines[2].isEmpty)
     }
 
+    @Test(arguments: ["  =1+1", "\t=1+1", "\r=cmd", "+SUM(A1)", "-2+3", "@x"])
+    func csvNeutralizesFormulaPrefixes(_ isp: String) {
+        var row = result()
+        row.isp = isp
+        let line = DashboardFormats.csv([row]).components(separatedBy: "\r\n")[1]
+        #expect(line.contains("'"))
+    }
+
+    @Test func csvKeepsNegativeNumbersAndPlainText() {
+        var row = result()
+        row.isp = "Example ISP"
+        row.server = "-5"
+        let line = DashboardFormats.csv([row]).components(separatedBy: "\r\n")[1]
+        #expect(!line.contains("'"))
+    }
+
     @Test func metricsDescribeLastSuccessAndLatestOutcome() {
         let failed = result(download: nil, upload: nil, error: "offline")
         let text = DashboardFormats.metrics(latest: failed, lastSuccess: result())
