@@ -58,3 +58,7 @@ xcodebuild test -project Pulsar.xcodeproj -scheme Pulsar
 
 `scripts/release.sh` publishes a GitHub release for the current `MARKETING_VERSION`, and
 `swift scripts/make-icon.swift` redraws the app icon.
+
+## License
+
+MIT. See [LICENSE](LICENSE).
