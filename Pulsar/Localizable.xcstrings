@@ -634,6 +634,16 @@
         }
       }
     },
+    "Pulsar %@ is available": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Доступна версия Pulsar %@"
+          }
+        }
+      }
+    },
     "Pulsar test notification": {
       "localizations": {
         "ru": {

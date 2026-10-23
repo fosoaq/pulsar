@@ -55,3 +55,15 @@ struct ResultStoreTests {
         #expect(results.first?.succeeded == false)
     }
 }
+
+struct UpdateCheckerTests {
+    @Test(arguments: [("v0.2.0", "0.1.0"), ("0.1.1", "0.1.0"), ("1.0", "0.9.9"), ("v0.10.0", "0.9.0")])
+    func newer(_ candidate: String, _ current: String) {
+        #expect(UpdateChecker.isVersion(candidate, newerThan: current))
+    }
+
+    @Test(arguments: [("v0.1.0", "0.1.0"), ("0.1", "0.1.0"), ("v0.0.9", "0.1.0"), ("0.9.0", "0.10.0")])
+    func notNewer(_ candidate: String, _ current: String) {
+        #expect(!UpdateChecker.isVersion(candidate, newerThan: current))
+    }
+}

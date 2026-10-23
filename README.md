@@ -31,16 +31,27 @@ on Ethernet.
 
 Requests must use `localhost`, a `.local` name or an IP address as the host.
 
+## Installing
+
+Requires macOS 14 or later, on Apple silicon or Intel.
+
+1. Download `Pulsar-<version>.zip` from [Releases](https://github.com/fosoaq/pulsar/releases),
+   unzip it and move `Pulsar.app` to Applications.
+2. Pulsar is not notarized by Apple, so the first launch is blocked. Open System Settings →
+   Privacy & Security and click **Open Anyway**, or run
+   `xattr -dr com.apple.quarantine /Applications/Pulsar.app` once.
+
+Pulsar adds itself to login items on its first launch from Applications; Settings → General
+turns that off. When a newer release appears, the menu shows a link to it.
+
 ## Building
 
-Requires Xcode 16 or later and macOS 14 or later.
+Requires Xcode 16 or later.
 
 ```sh
-open Pulsar.xcodeproj
+scripts/install.sh            # build a Release copy and install it into /Applications
+xcodebuild test -project Pulsar.xcodeproj -scheme Pulsar
 ```
 
-or from the command line:
-
-```sh
-xcodebuild -project Pulsar.xcodeproj -scheme Pulsar -configuration Release build
-```
+`scripts/release.sh` publishes a GitHub release for the current `MARKETING_VERSION`, and
+`swift scripts/make-icon.swift` redraws the app icon.

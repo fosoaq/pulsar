@@ -12,6 +12,16 @@ struct MenuContentView: View {
             if model.needsOoklaLicense {
                 licenseNotice
             }
+            if let update = model.availableUpdate {
+                Button {
+                    NSWorkspace.shared.open(update.url)
+                } label: {
+                    Label("Pulsar \(update.version) is available", systemImage: "arrow.down.circle.fill")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                }
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+            }
 
             if let result = model.lastSuccess {
                 metrics(result)

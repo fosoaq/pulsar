@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import ServiceManagement
 import SystemConfiguration
 
 /// Owns the history, the schedule and the services the settings switch on and off.
@@ -14,6 +15,8 @@ final class AppModel {
     private(set) var hostnameError: String?
     /// Why the last delivery to Telegram, ntfy or the webhook failed, if it did.
     private(set) var deliveryError: String?
+    /// A newer release on GitHub, found by the daily check.
+    private(set) var availableUpdate: UpdateChecker.Release?
 
     var settings: AppSettings {
         didSet {
@@ -29,6 +32,7 @@ final class AppModel {
     @ObservationIgnored private let dashboard = DashboardServer()
     @ObservationIgnored private let hostname = HostnameAdvertiser()
     @ObservationIgnored private var schedulerTask: Task<Void, Never>?
+    @ObservationIgnored private var lastUpdateCheck = Date.distantPast
 
     /// Unit tests load the app as their host; it must not start testing or serving then.
     static let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
@@ -52,7 +56,24 @@ final class AppModel {
             self?.hostnameError = message
         }
         applySettings(previous: nil)
+        enableLaunchAtLoginOnFirstInstall()
         startScheduler()
+    }
+
+    /// A menu bar monitor is only useful while it runs, so the first launch from
+    /// /Applications adds it to login items once; Settings can turn that off again.
+    private func enableLaunchAtLoginOnFirstInstall() {
+        let key = "didEnableLaunchAtLogin"
+        guard !UserDefaults.standard.bool(forKey: key), Bundle.main.bundlePath.hasPrefix("/Applications/") else { return }
+        UserDefaults.standard.set(true, forKey: key)
+        try? SMAppService.mainApp.register()
+    }
+
+    func checkForUpdates() async {
+        lastUpdateCheck = .now
+        if let release = try? await UpdateChecker().check() {
+            availableUpdate = release
+        }
     }
 
     var latest: SpeedTestResult? { recent.first }
@@ -162,10 +183,16 @@ final class AppModel {
             while !Task.isCancelled {
                 // Follows the Mac to a new IP address, e.g. after a DHCP renewal.
                 self?.publishHostname()
+                self?.checkForUpdatesIfDue()
                 self?.runIfDue()
                 try? await Task.sleep(for: .seconds(30))
             }
         }
+    }
+
+    private func checkForUpdatesIfDue() {
+        guard lastUpdateCheck.addingTimeInterval(86_400) < .now else { return }
+        Task { await checkForUpdates() }
     }
 
     private func runIfDue() {
