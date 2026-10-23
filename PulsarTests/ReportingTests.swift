@@ -47,7 +47,7 @@ struct DashboardFormatsTests {
         #expect(lines[2].isEmpty)
     }
 
-    @Test(arguments: ["  =1+1", "\t=1+1", "\r=cmd", "+SUM(A1)", "-2+3", "@x"])
+    @Test(arguments: ["  =1+1", "\t=1+1", "\r=cmd", "\r\n=cmd", "=\u{301}1+1", "\u{3000}=1+1", "+SUM(A1)", "-2+3", "@x"])
     func csvNeutralizesFormulaPrefixes(_ isp: String) {
         var row = result()
         row.isp = isp

@@ -54,8 +54,10 @@ enum DashboardFormats {
     /// start, even after spaces, is neutralized so spreadsheets do not evaluate it.
     private static func field(_ value: String) -> String {
         var value = value
-        let first = value.first { !$0.isWhitespace || $0 == "\t" || $0 == "\r" }
-        if let first, "=+-@\t\r".contains(first), Double(value) == nil {
+        // Scalars, not Characters: "=" followed by a combining mark is one Character
+        // that is not "=", yet a spreadsheet still sees the "=".
+        let first = value.unicodeScalars.first { !$0.properties.isWhitespace || $0 == "\t" || $0 == "\r" }
+        if let first, "=+-@\t\r".unicodeScalars.contains(first), Double(value) == nil {
             value = "'" + value
         }
         guard value.contains(where: { ",\"\r\n".contains($0) }) else { return value }
