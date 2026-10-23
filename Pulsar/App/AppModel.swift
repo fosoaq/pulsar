@@ -36,6 +36,8 @@ final class AppModel {
     @ObservationIgnored private let hostname = HostnameAdvertiser()
     @ObservationIgnored private var schedulerTask: Task<Void, Never>?
     @ObservationIgnored private var lastUpdateCheck = Date.distantPast
+    @ObservationIgnored private var serversTask: Task<Void, Never>?
+    @ObservationIgnored private var lastServersAttempt = Date.distantPast
 
     /// Unit tests load the app as their host; it must not start testing or serving then.
     static let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
@@ -126,15 +128,32 @@ final class AppModel {
     }
 
     /// Lists nearby servers once and keeps them; `refresh` asks the CLI again.
+    ///
+    /// The dashboard can ask for the list without any credentials, so at most one
+    /// `speedtest --servers` runs at a time, and after an attempt that found nothing
+    /// only `refresh` (from Settings) retries within five minutes.
     @discardableResult
     func loadOoklaServers(refresh: Bool = false) async -> [OoklaServer] {
-        guard refresh || ooklaServers.isEmpty, OoklaEngine.executablePath != nil else { return ooklaServers }
-        do {
-            ooklaServers = try await OoklaEngine.servers(acceptLicense: settings.acceptedOoklaLicense)
-            ooklaServersError = nil
-        } catch {
-            ooklaServersError = error.localizedDescription
+        if let serversTask {
+            await serversTask.value
+            return ooklaServers
         }
+        let coolingDown = lastServersAttempt.addingTimeInterval(300) > .now
+        guard refresh || (ooklaServers.isEmpty && !coolingDown), OoklaEngine.executablePath != nil else { return ooklaServers }
+
+        lastServersAttempt = .now
+        let accept = settings.acceptedOoklaLicense
+        let task = Task {
+            do {
+                ooklaServers = try await OoklaEngine.servers(acceptLicense: accept)
+                ooklaServersError = nil
+            } catch {
+                ooklaServersError = error.localizedDescription
+            }
+        }
+        serversTask = task
+        await task.value
+        serversTask = nil
         return ooklaServers
     }
 
