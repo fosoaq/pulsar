@@ -1,6 +1,5 @@
 import Foundation
 import Observation
-import Darwin
 import SystemConfiguration
 
 /// Owns the history, the schedule and the services the settings switch on and off.
@@ -12,6 +11,7 @@ final class AppModel {
     private(set) var isRunning = false
     private(set) var dashboardError: String?
     private(set) var storeError: String?
+    private(set) var hostnameError: String?
 
     var settings: AppSettings {
         didSet {
@@ -25,6 +25,7 @@ final class AppModel {
     @ObservationIgnored private let notifier = Notifier()
     @ObservationIgnored private let sleepGuard = SleepGuard()
     @ObservationIgnored private let dashboard = DashboardServer()
+    @ObservationIgnored private let hostname = HostnameAdvertiser()
     @ObservationIgnored private var schedulerTask: Task<Void, Never>?
 
     init() {
@@ -37,6 +38,9 @@ final class AppModel {
         }
         reload()
         notifier.requestAuthorization()
+        hostname.onError = { [weak self] message in
+            self?.hostnameError = message
+        }
         applySettings(previous: nil)
         startScheduler()
     }
@@ -56,16 +60,27 @@ final class AppModel {
         settings.engine == .ookla && !settings.acceptedOoklaLicense
     }
 
-    /// The `.local` address other devices on the network can open.
+    /// The address other devices on the network can open.
     var dashboardURL: URL? {
         dashboardURLs.first
     }
 
-    /// The `.local` name from Sharing settings, then the IP address for devices that cannot resolve `.local`.
+    /// Pulsar's own `.local` name, the Mac's Local hostname from Sharing settings,
+    /// then the IP address for devices that cannot resolve `.local`.
     var dashboardURLs: [URL] {
         guard settings.dashboardEnabled else { return [] }
-        let hosts = [(SCDynamicStoreCopyLocalHostName(nil) as String?).map { "\($0).local" }, Self.primaryIPv4Address()]
-        return hosts.compactMap { $0 }.compactMap { URL(string: "http://\($0):\(settings.dashboardPort)") }
+        let hosts = [
+            settings.dashboardHostname.isEmpty || hostnameError != nil ? nil : "\(settings.dashboardHostname).local",
+            (SCDynamicStoreCopyLocalHostName(nil) as String?).map { "\($0).local" },
+            LocalAddress.current()?.ip,
+        ]
+        return hosts.compactMap { $0 }.compactMap { host in
+            var components = URLComponents()
+            components.scheme = "http"
+            components.host = host
+            components.port = settings.dashboardPort == 80 ? nil : settings.dashboardPort
+            return components.url
+        }
     }
 
     func runNow() {
@@ -111,6 +126,8 @@ final class AppModel {
     private func startScheduler() {
         schedulerTask = Task { [weak self] in
             while !Task.isCancelled {
+                // Follows the Mac to a new IP address, e.g. after a DHCP renewal.
+                self?.publishHostname()
                 self?.runIfDue()
                 try? await Task.sleep(for: .seconds(30))
             }
@@ -123,28 +140,17 @@ final class AppModel {
         }
     }
 
-    /// The first IPv4 address on an Ethernet or Wi-Fi interface.
-    private static func primaryIPv4Address() -> String? {
-        var list: UnsafeMutablePointer<ifaddrs>?
-        guard getifaddrs(&list) == 0, let first = list else { return nil }
-        defer { freeifaddrs(list) }
-        for entry in sequence(first: first, next: { $0.pointee.ifa_next }) {
-            let flags = Int32(entry.pointee.ifa_flags)
-            guard let address = entry.pointee.ifa_addr,
-                  address.pointee.sa_family == UInt8(AF_INET),
-                  flags & IFF_UP != 0, flags & IFF_LOOPBACK == 0,
-                  String(cString: entry.pointee.ifa_name).hasPrefix("en")
-            else { continue }
-            var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
-            if getnameinfo(address, socklen_t(address.pointee.sa_len), &host, socklen_t(host.count), nil, 0, NI_NUMERICHOST) == 0 {
-                return host.withUnsafeBufferPointer { String(cString: $0.baseAddress!) }
-            }
-        }
-        return nil
+    private func publishHostname() {
+        let name = settings.dashboardEnabled && !settings.dashboardHostname.isEmpty ? settings.dashboardHostname : nil
+        hostname.update(name: name, address: LocalAddress.current())
     }
 
     private func applySettings(previous: AppSettings?) {
         sleepGuard.setActive(settings.preventSleep)
+        if previous?.dashboardHostname != settings.dashboardHostname || previous?.dashboardEnabled != settings.dashboardEnabled {
+            hostnameError = nil
+            publishHostname()
+        }
         if previous?.dashboardEnabled != settings.dashboardEnabled || previous?.dashboardPort != settings.dashboardPort {
             restartDashboard()
         }

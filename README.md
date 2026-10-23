@@ -12,7 +12,7 @@ on Ethernet.
   `speedtest --accept-license --accept-gdpr` once).
 - Scheduled tests every 15 minutes to 24 hours; keeps the Mac from idle-sleeping while it runs.
 - Notifications when a test fails or speed drops below a threshold.
-- Dashboard at `http://<your-mac>.local:8765` with a read-only JSON API:
+- Dashboard at `http://pulsar.local:8765` (the name and port are configurable; port 80 drops it from the address) with a read-only JSON API:
   `GET /api/results?days=7`, `GET /api/latest`.
 - History in SQLite at `~/Library/Application Support/Pulsar/pulsar.sqlite`.
 

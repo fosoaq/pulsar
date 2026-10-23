@@ -12,8 +12,17 @@ struct AppSettings: Codable, Equatable, Sendable {
     var minUploadMbps = 0.0
     var dashboardEnabled = true
     var dashboardPort = 8765
+    /// Published as `<name>.local`; empty leaves only the Mac's own name and IP.
+    var dashboardHostname = "pulsar"
 
     static let intervalChoices = [15, 30, 60, 120, 180, 360, 720, 1440]
+
+    /// Keeps what a DNS label allows: lowercase letters, digits and hyphens, at most 63.
+    /// Hyphens at the ends survive so they can be typed; `applyHostname` trims them.
+    static func sanitizedHostname(_ name: String) -> String {
+        let allowed = name.lowercased().filter { ("a"..."z").contains($0) || ("0"..."9").contains($0) || $0 == "-" }
+        return String(allowed.prefix(63))
+    }
 
     init() {}
 
@@ -30,6 +39,7 @@ struct AppSettings: Codable, Equatable, Sendable {
         minUploadMbps = try container.decodeIfPresent(Double.self, forKey: .minUploadMbps) ?? defaults.minUploadMbps
         dashboardEnabled = try container.decodeIfPresent(Bool.self, forKey: .dashboardEnabled) ?? defaults.dashboardEnabled
         dashboardPort = try container.decodeIfPresent(Int.self, forKey: .dashboardPort) ?? defaults.dashboardPort
+        dashboardHostname = try container.decodeIfPresent(String.self, forKey: .dashboardHostname) ?? defaults.dashboardHostname
     }
 
     private static let defaultsKey = "settings"

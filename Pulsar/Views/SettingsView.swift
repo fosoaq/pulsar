@@ -5,6 +5,7 @@ struct SettingsView: View {
     @Environment(AppModel.self) private var model
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var loginItemError: String?
+    @State private var hostnameDraft: String?
 
     var body: some View {
         @Bindable var model = model
@@ -55,17 +56,35 @@ struct SettingsView: View {
 
             Section("Dashboard") {
                 Toggle("Serve a dashboard on the local network", isOn: $model.settings.dashboardEnabled)
+                LabeledContent("Address") {
+                    HStack(spacing: 2) {
+                        TextField("Address", text: hostnameField, prompt: Text("pulsar"))
+                            .labelsHidden()
+                            .multilineTextAlignment(.trailing)
+                            .onSubmit(applyHostname)
+                        Text(".local")
+                            .foregroundStyle(.secondary)
+                    }
+                }
+                .disabled(!model.settings.dashboardEnabled)
                 TextField("Port", value: validPort($model.settings.dashboardPort), format: .number.grouping(.never))
                     .disabled(!model.settings.dashboardEnabled)
+                Text("Press Return to apply the address. Port 80 drops the port from the address. Leave the address empty to use only this Mac's name.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
                 ForEach(model.dashboardURLs, id: \.self) { url in
                     Link(url.absoluteString, destination: url)
                 }
                 if model.settings.dashboardEnabled {
-                    Text("The .local name is this Mac's Local hostname from System Settings → General → Sharing. Use the IP address on devices that cannot open .local names.")
+                    Text("The second .local name is this Mac's Local hostname from System Settings → General → Sharing. Use the IP address on devices that cannot open .local names.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
                 if let error = model.dashboardError {
+                    Text(error)
+                        .foregroundStyle(.red)
+                }
+                if let error = model.hostnameError {
                     Text(error)
                         .foregroundStyle(.red)
                 }
@@ -103,7 +122,21 @@ struct SettingsView: View {
     }
 
     private func validPort(_ binding: Binding<Int>) -> Binding<Int> {
-        Binding(get: { binding.wrappedValue }, set: { if (1024...65535).contains($0) { binding.wrappedValue = $0 } })
+        Binding(get: { binding.wrappedValue }, set: { if (1...65535).contains($0) { binding.wrappedValue = $0 } })
+    }
+
+    /// Edits a draft so the name is not republished on every keystroke.
+    private var hostnameField: Binding<String> {
+        Binding(
+            get: { hostnameDraft ?? model.settings.dashboardHostname },
+            set: { hostnameDraft = AppSettings.sanitizedHostname($0) }
+        )
+    }
+
+    private func applyHostname() {
+        guard let hostnameDraft else { return }
+        model.settings.dashboardHostname = hostnameDraft.trimmingCharacters(in: CharacterSet(charactersIn: "-"))
+        self.hostnameDraft = nil
     }
 
     private func setLaunchAtLogin(_ enabled: Bool) {
