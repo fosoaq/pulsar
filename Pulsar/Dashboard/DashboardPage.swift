@@ -7,10 +7,16 @@ enum DashboardPage {
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Pulsar</title>
+    <script>
+      // Apply the saved theme before the first paint, so the page does not flash.
+      try { const theme = localStorage.getItem("theme"); if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme } catch (e) {}
+    </script>
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2318181b'/%3E%3Cpath d='M14 44a20 20 0 1 1 36 0' fill='none' stroke='white' stroke-width='6' stroke-linecap='round'/%3E%3Cpath d='M32 40 44 26' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E">
     <style>
     :root{--bg:#fafafa;--text:#18181b;--muted:#71717a;--faint:#a1a1aa;--rule:#ececee;--accent:#2563eb;--second:#a1a1aa;--bad:#dc2626;color-scheme:light}
-    @media (prefers-color-scheme:dark){:root{--bg:#0e0e10;--text:#ededef;--muted:#8b8b93;--faint:#5c5c64;--rule:#1d1d21;--accent:#6ea8fe;--second:#8b8b93;--bad:#f87171;color-scheme:dark}}
+    /* Dark follows the system unless the viewer picked a theme in the footer. */
+    @media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e0e10;--text:#ededef;--muted:#8b8b93;--faint:#5c5c64;--rule:#1d1d21;--accent:#6ea8fe;--second:#8b8b93;--bad:#f87171;color-scheme:dark}}
+    :root[data-theme=dark]{--bg:#0e0e10;--text:#ededef;--muted:#8b8b93;--faint:#5c5c64;--rule:#1d1d21;--accent:#6ea8fe;--second:#8b8b93;--bad:#f87171;color-scheme:dark}
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
     /* A column as tall as the window, so the footer sits at the bottom of short pages. */
@@ -79,9 +85,31 @@ enum DashboardPage {
     a.muted{text-decoration:none}
     a.muted:hover{color:var(--text)}
 
-    footer{margin-top:auto;padding-top:96px;color:var(--faint);font-size:13px;display:flex;flex-wrap:wrap;gap:6px 18px}
+    footer{margin-top:auto;padding-top:96px;color:var(--faint);font-size:13px;display:flex;flex-wrap:wrap;gap:12px 18px;align-items:baseline}
+    footer .prefs{margin-left:auto;display:flex;flex-wrap:wrap;gap:12px 32px}
+    footer .options{gap:12px}
+    footer .options button{font-size:13px}
     footer a{text-decoration:none}
     footer a:hover{color:var(--text)}
+    @media (max-width:640px){
+      .actions{width:100%;flex-wrap:nowrap;justify-content:space-between}
+      .actions select{flex:1;min-width:0;max-width:none;text-align:left;text-overflow:ellipsis}
+      .run{white-space:nowrap}
+      nav{margin:40px 0 32px}
+      .metrics{grid-template-columns:1fr 1fr;gap:28px 16px}
+      .metric .value{font-size:34px}
+      .last{margin-bottom:48px}
+      .chart{margin-bottom:56px}
+      /* The recent tests keep to what fits; the Results tab scrolls sideways instead. */
+      #recent .server{display:none}
+      th,td{padding:10px 5px}
+      td.num,th.num{width:auto}
+      table{font-size:13px}
+      .facts{grid-template-columns:1fr 1fr;margin-bottom:56px}
+      .stats-grid{gap:56px;margin-bottom:56px}
+      footer{padding-top:72px}
+      footer .prefs{margin-left:0}
+    }
     [hidden]{display:none!important}
     </style>
     </head>
@@ -138,7 +166,7 @@ enum DashboardPage {
       <div class="table-wrap"><table id="servers"></table></div>
     </section>
 
-    <footer><span id="version">Pulsar</span><a href="/api/results">JSON</a><a href="/metrics">Prometheus</a><a href="https://github.com/fosoaq/pulsar">GitHub</a></footer>
+    <footer><span id="version">Pulsar</span><a href="/api/results">JSON</a><a href="/metrics">Prometheus</a><a href="https://github.com/fosoaq/pulsar">GitHub</a><div class="prefs"><div class="options" id="theme" aria-label="Theme"></div><div class="options" id="lang" aria-label="Language"></div></div></footer>
     </main>
     <script>
     // Russian when the browser prefers it; English otherwise.
@@ -155,14 +183,23 @@ enum DashboardPage {
       "24h": "24ч", "7d": "7д", "30d": "30д", "90d": "90д", "Show more": "Показать ещё",
       "Last test": "Последний тест", "minutes ago": "мин назад", "just now": "только что",
       "Recent tests": "Последние тесты", "All results": "Все результаты", "Download CSV": "Скачать CSV",
-      "All": "Все", "Failures": "Ошибки", "Automatic server": "Сервер: автоматически",
+      "All": "Все", "Failures": "Ошибки", "Nearest server": "Ближайший сервер",
       "Summary": "Сводка", "Average": "Среднее", "Median": "Медиана", "Lowest": "Минимум", "Highest": "Максимум",
       "Download by hour of day": "Загрузка по часам суток", "By server": "По серверам", "Tests": "Тестов",
       "Success rate": "Успешных", "failed": "с ошибкой", "Below threshold": "Ниже порога", "Slowest hour": "Самый медленный час",
-      "of": "из",
+      "of": "из", "Auto": "Авто", "Light": "Светлая", "Dark": "Тёмная",
     };
-    const L10N = /^ru\b/i.test((navigator.languages || [])[0] || navigator.language || "") ? RU : {};
+    const prefs = {
+      get(key, fallback) { try { return localStorage.getItem(key) ?? fallback } catch (e) { return fallback } },
+      set(key, value) { try { localStorage.setItem(key, value) } catch (e) {} },
+    };
+    // Russian when picked in the footer, or on Auto when the browser prefers it.
+    const language = ["en", "ru"].includes(prefs.get("lang", "auto")) ? prefs.get("lang", "auto") : "auto";
+    const prefersRussian = /^ru\b/i.test((navigator.languages || [])[0] || navigator.language || "");
+    const L10N = language === "ru" || (language === "auto" && prefersRussian) ? RU : {};
     const t = s => L10N[s] || s;
+    // Dates follow the page language, not only the browser's.
+    const LOCALE = L10N === RU ? "ru" : [];
     if (L10N === RU) document.documentElement.lang = "ru";
     document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.textContent) });
 
@@ -175,10 +212,6 @@ enum DashboardPage {
     const TABS = ["overview", "results", "statistics"];
     const PAGE = 50;
 
-    const prefs = {
-      get(key, fallback) { try { return localStorage.getItem(key) ?? fallback } catch (e) { return fallback } },
-      set(key, value) { try { localStorage.setItem(key, value) } catch (e) {} },
-    };
     let days = Number(prefs.get("days", 7)) || 7;
     let kind = KINDS[prefs.get("kind", "speed")] ? prefs.get("kind", "speed") : "speed";
     let failuresOnly = false;
@@ -189,9 +222,9 @@ enum DashboardPage {
     const $ = id => document.getElementById(id);
     const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
     const num = v => v == null || isNaN(v) ? "—" : v >= 100 ? v.toFixed(0) : String(+v.toFixed(v >= 10 ? 1 : 2));
-    const fmtTime = d => d.toLocaleString([], {month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"});
-    const fmtClock = d => d.toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"});
-    const hourLabel = hour => new Date(2000, 0, 1, hour).toLocaleTimeString([], {hour: "numeric"});
+    const fmtTime = d => d.toLocaleString(LOCALE, {month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"});
+    const fmtClock = d => d.toLocaleTimeString(LOCALE, {hour: "2-digit", minute: "2-digit"});
+    const hourLabel = hour => new Date(2000, 0, 1, hour).toLocaleTimeString(LOCALE, {hour: "numeric"});
     const values = (rows, key) => rows.map(r => r[key]).filter(v => v != null);
     const mean = xs => xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
     const median = xs => {
@@ -224,6 +257,10 @@ enum DashboardPage {
       options("ranges", RANGES, days, "days");
       options("kinds", Object.entries(KINDS).map(([key, k]) => [k.label, key]), kind, "kind");
       options("filters", [["All", "all"], ["Failures", "failures"]], failuresOnly ? "failures" : "all", "filter");
+      options("theme", [["Auto", "auto"], ["Light", "light"], ["Dark", "dark"]], document.documentElement.dataset.theme || "auto", "theme");
+      // Language names stay in their own language, so each is recognizable in the other.
+      $("lang").innerHTML = [["Auto", "auto"], ["English", "en"], ["Русский", "ru"]]
+        .map(([label, value]) => `<button aria-pressed="${value === language}" data-lang="${value}">${value === "auto" ? t(label) : label}</button>`).join("");
       $("legend").innerHTML = KINDS[kind].series.map(([, label, color, dashed]) => `<span style="--c:var(${color})"${dashed ? ' class="dashed"' : ""}>${t(label)}</span>`).join("");
     }
     function onOption(container, handle) {
@@ -233,6 +270,12 @@ enum DashboardPage {
     onOption("kinds", d => { kind = d.kind; prefs.set("kind", kind); renderOptions(); drawChart() });
     onOption("filters", d => { failuresOnly = d.filter === "failures"; shown = PAGE; renderOptions(); renderResults() });
     $("more").addEventListener("click", () => { shown += PAGE; renderResults() });
+    onOption("theme", d => {
+      if (d.theme === "auto") delete document.documentElement.dataset.theme; else document.documentElement.dataset.theme = d.theme;
+      prefs.set("theme", d.theme);
+      renderOptions();
+    });
+    onOption("lang", d => { prefs.set("lang", d.lang); location.reload() });
 
     // Status, server list and running a test
     let wasRunning = false;
@@ -259,7 +302,7 @@ enum DashboardPage {
         const servers = await (await fetch("/api/servers")).json();
         if (!servers.length) return;
         const select = $("server");
-        select.innerHTML = `<option value="">${t("Automatic server")}</option>` +
+        select.innerHTML = `<option value="">${t("Nearest server")}</option>` +
           servers.map(s => `<option value="${s.id}">${esc([s.name, s.location].filter(Boolean).join(", "))}</option>`).join("");
         select.value = status?.serverID ?? "";
         select.hidden = false;
@@ -313,13 +356,13 @@ enum DashboardPage {
     function table(rows, full) {
       if (!rows.length) return empty;
       const head = `<thead><tr><th>${t("Time")}</th><th class="num">${t("Download")}</th><th class="num">${t("Upload")}</th><th class="num">${t("Ping")}</th>` +
-        (full ? `<th class="num">${t("Jitter")}</th><th class="num">${t("Loaded ping")}</th><th class="num">${t("Loss")}</th>` : "") + `<th>${t("Server")}</th>${full ? `<th>${t("Engine")}</th>` : ""}</tr></thead>`;
+        (full ? `<th class="num">${t("Jitter")}</th><th class="num">${t("Loaded ping")}</th><th class="num">${t("Loss")}</th>` : "") + `<th class="server">${t("Server")}</th>${full ? `<th>${t("Engine")}</th>` : ""}</tr></thead>`;
       const body = rows.map(r => {
         const time = r.resultURL ? `<a href="${esc(r.resultURL)}" target="_blank" rel="noopener">${fmtTime(r.date)}</a>` : fmtTime(r.date);
         if (r.error) return `<tr><td>${time}</td><td class="err" colspan="${full ? 8 : 4}">${esc(r.error)}</td></tr>`;
         return `<tr><td>${time}</td><td class="num">${num(r.downloadMbps)}</td><td class="num">${num(r.uploadMbps)}</td><td class="num">${num(r.latencyMs)}</td>` +
           (full ? `<td class="num">${num(r.jitterMs)}</td><td class="num">${r.downloadLatencyMs != null || r.uploadLatencyMs != null ? `${num(r.downloadLatencyMs)} / ${num(r.uploadLatencyMs)}` : "—"}</td><td class="num">${r.packetLossPercent != null ? num(r.packetLossPercent) + "%" : "—"}</td>` : "") +
-          `<td class="wrap dim">${r.server ? esc(r.server) : "—"}</td>${full ? `<td class="dim">${esc(ENGINES[r.engine] || r.engine)}</td>` : ""}</tr>`;
+          `<td class="wrap dim server">${r.server ? esc(r.server) : "—"}</td>${full ? `<td class="dim">${esc(ENGINES[r.engine] || r.engine)}</td>` : ""}</tr>`;
       }).join("");
       return head + `<tbody>${body}</tbody>`;
     }
@@ -452,7 +495,7 @@ enum DashboardPage {
       for (const tick of ticks) {
         const d = new Date(tick);
         const midnight = d.getHours() === 0 && d.getMinutes() === 0;
-        out += `<text x="${x(tick)}" y="${H - 6}" text-anchor="middle">${daily || midnight ? d.toLocaleDateString([], {month: "short", day: "numeric"}) : fmtClock(d)}</text>`;
+        out += `<text x="${x(tick)}" y="${H - 6}" text-anchor="middle">${daily || midnight ? d.toLocaleDateString(LOCALE, {month: "short", day: "numeric"}) : fmtClock(d)}</text>`;
       }
       // The second series first, so the main one sits on top.
       for (const [key, , color, dashed] of [...config.series].reverse()) {
