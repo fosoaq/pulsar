@@ -47,6 +47,14 @@ final class ResultStore: Sendable {
         }
     }
 
+    /// Returns how many were removed.
+    @discardableResult
+    func deleteResults(before date: Date) throws -> Int {
+        try dbQueue.write { db in
+            try SpeedTestResult.filter(Column("date") < date).deleteAll(db)
+        }
+    }
+
     /// Newest first.
     func results(since date: Date) throws -> [SpeedTestResult] {
         try dbQueue.read { db in

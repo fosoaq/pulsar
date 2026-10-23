@@ -2,24 +2,35 @@ import ServiceManagement
 import SwiftUI
 
 struct SettingsView: View {
+    var body: some View {
+        TabView {
+            TestingSettings()
+                .tabItem { Label("Testing", systemImage: "gauge.with.dots.needle.67percent") }
+            NotificationSettings()
+                .tabItem { Label("Notifications", systemImage: "bell.badge") }
+            DashboardSettings()
+                .tabItem { Label("Dashboard", systemImage: "globe") }
+            GeneralSettings()
+                .tabItem { Label("General", systemImage: "gearshape") }
+        }
+        .frame(width: 500)
+    }
+}
+
+private struct TestingSettings: View {
     @Environment(AppModel.self) private var model
-    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
-    @State private var loginItemError: String?
-    @State private var hostnameDraft: String?
 
     var body: some View {
         @Bindable var model = model
 
         Form {
-            Section("Speed test") {
+            Section {
                 Picker("Engine", selection: $model.settings.engine) {
                     ForEach(SpeedTestEngineKind.allCases) { kind in
                         Text(kind.title).tag(kind)
                     }
                 }
-                Text(engineNote)
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Caption(engineNote)
 
                 if model.settings.engine == .ookla {
                     Toggle(isOn: $model.settings.acceptedOoklaLicense) {
@@ -33,28 +44,114 @@ struct SettingsView: View {
                     }
                     .font(.caption)
                 }
+            }
 
+            Section {
                 Picker("Run a test every", selection: $model.settings.intervalMinutes) {
                     ForEach(AppSettings.intervalChoices, id: \.self) { minutes in
                         Text(Format.interval(minutes: minutes)).tag(minutes)
                     }
                 }
+                Caption("After a failed test Pulsar tries again in \(AppModel.retryMinutes) minutes.")
                 Toggle("Keep the Mac awake for scheduled tests", isOn: $model.settings.preventSleep)
-                Text("Stops idle sleep while Pulsar runs. The display still turns off.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Caption("Stops idle sleep while Pulsar runs. The display still turns off.")
             }
 
-            Section("Notifications") {
-                Toggle("Notify when a test fails", isOn: $model.settings.notifyOnFailure)
-                TextField("Notify when download is below, Mbps", value: nonNegative($model.settings.minDownloadMbps), format: .number)
-                TextField("Notify when upload is below, Mbps", value: nonNegative($model.settings.minUploadMbps), format: .number)
-                Text("0 turns a threshold off.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+            Section {
+                Picker("Keep history for", selection: $model.settings.keepDays) {
+                    ForEach(AppSettings.keepDaysChoices, id: \.self) { days in
+                        Text(Format.keepDays(days)).tag(days)
+                    }
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var engineNote: String {
+        switch model.settings.engine {
+        case .networkQuality:
+            String(localized: "Built into macOS. Measures against Apple's servers, including responsiveness under load.")
+        case .ookla:
+            OoklaEngine.executablePath == nil
+                ? String(localized: "Not installed. Run: brew install teamookla/speedtest/speedtest")
+                : String(localized: "Measures against the nearest Speedtest.net server.")
+        }
+    }
+}
+
+private struct NotificationSettings: View {
+    @Environment(AppModel.self) private var model
+    @State private var isSending = false
+
+    var body: some View {
+        @Bindable var model = model
+
+        Form {
+            Section("When to notify") {
+                Toggle("When a test fails", isOn: $model.settings.notifyOnFailure)
+                TextField("When download is below, Mbps", value: nonNegative($model.settings.minDownloadMbps), format: .number)
+                TextField("When upload is below, Mbps", value: nonNegative($model.settings.minUploadMbps), format: .number)
+                Caption("0 turns a threshold off. Alerts always appear in Notification Center on this Mac.")
             }
 
-            Section("Dashboard") {
+            Section("Telegram") {
+                SecureField("Bot token", text: $model.settings.telegramBotToken, prompt: Text("123456:ABC…"))
+                TextField("Chat ID", text: $model.settings.telegramChatID, prompt: Text("123456789"))
+                Caption("Create a bot with @BotFather, send it any message, then find your chat ID with @userinfobot.")
+            }
+
+            Section("ntfy") {
+                TextField("Topic URL", text: $model.settings.ntfyURL, prompt: Text("https://ntfy.sh/my-pulsar"))
+                Caption("Subscribe to the same topic in the ntfy app on your phone.")
+            }
+
+            Section("Webhook") {
+                TextField("URL", text: $model.settings.webhookURL, prompt: Text("https://example.com/hook"))
+                Caption("Receives every result as JSON, with an alert attached when one applies.")
+            }
+
+            Section {
+                HStack {
+                    Button("Send Test Notification") {
+                        isSending = true
+                        Task {
+                            await model.sendTestNotification()
+                            isSending = false
+                        }
+                    }
+                    .disabled(isSending)
+                    if isSending {
+                        ProgressView()
+                            .controlSize(.small)
+                    }
+                }
+                if let error = model.deliveryError {
+                    Text(error)
+                        .foregroundStyle(.red)
+                        .textSelection(.enabled)
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private func nonNegative(_ binding: Binding<Double>) -> Binding<Double> {
+        Binding(get: { binding.wrappedValue }, set: { binding.wrappedValue = max(0, $0) })
+    }
+}
+
+private struct DashboardSettings: View {
+    @Environment(AppModel.self) private var model
+    @State private var hostnameDraft: String?
+
+    var body: some View {
+        @Bindable var model = model
+
+        Form {
+            Section {
                 Toggle("Serve a dashboard on the local network", isOn: $model.settings.dashboardEnabled)
                 LabeledContent("Address") {
                     HStack(spacing: 2) {
@@ -69,14 +166,21 @@ struct SettingsView: View {
                 .disabled(!model.settings.dashboardEnabled)
                 TextField("Port", value: validPort($model.settings.dashboardPort), format: .number.grouping(.never))
                     .disabled(!model.settings.dashboardEnabled)
-                Text("Press Return to apply the address. Port 80 drops the port from the address. Leave the address empty to use only this Mac's name.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+                Caption("Press Return to apply the address. Port 80 drops the port from the address. Leave the address empty to use this Mac's name.")
+            }
+
+            Section {
                 if let url = model.dashboardURL {
                     Link(url.absoluteString, destination: url)
                 }
                 if let url = model.dashboardIPURL {
                     Text("On devices that cannot open .local names: \(url.absoluteString)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
+                }
+                if let url = model.dashboardIPURL?.appending(path: "metrics") {
+                    Text("Prometheus metrics: \(url.absoluteString)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .textSelection(.enabled)
@@ -90,36 +194,9 @@ struct SettingsView: View {
                         .foregroundStyle(.red)
                 }
             }
-
-            Section("General") {
-                Toggle("Launch at login", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { _, enabled in
-                        setLaunchAtLogin(enabled)
-                    }
-                if let loginItemError {
-                    Text(loginItemError)
-                        .foregroundStyle(.red)
-                }
-            }
         }
         .formStyle(.grouped)
-        .frame(width: 480)
         .fixedSize(horizontal: false, vertical: true)
-    }
-
-    private var engineNote: String {
-        switch model.settings.engine {
-        case .networkQuality:
-            "Built into macOS. Measures against Apple's servers, including responsiveness under load."
-        case .ookla:
-            OoklaEngine.executablePath == nil
-                ? "Not installed. Run: brew install teamookla/speedtest/speedtest"
-                : "Measures against the nearest Speedtest.net server, like speedtest-tracker."
-        }
-    }
-
-    private func nonNegative(_ binding: Binding<Double>) -> Binding<Double> {
-        Binding(get: { binding.wrappedValue }, set: { binding.wrappedValue = max(0, $0) })
     }
 
     private func validPort(_ binding: Binding<Int>) -> Binding<Int> {
@@ -139,6 +216,28 @@ struct SettingsView: View {
         model.settings.dashboardHostname = hostnameDraft.trimmingCharacters(in: CharacterSet(charactersIn: "-"))
         self.hostnameDraft = nil
     }
+}
+
+private struct GeneralSettings: View {
+    @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
+    @State private var loginItemError: String?
+
+    var body: some View {
+        Form {
+            Section {
+                Toggle("Launch at login", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { _, enabled in
+                        setLaunchAtLogin(enabled)
+                    }
+                if let loginItemError {
+                    Text(loginItemError)
+                        .foregroundStyle(.red)
+                }
+            }
+        }
+        .formStyle(.grouped)
+        .fixedSize(horizontal: false, vertical: true)
+    }
 
     private func setLaunchAtLogin(_ enabled: Bool) {
         guard enabled != (SMAppService.mainApp.status == .enabled) else { return }
@@ -153,5 +252,23 @@ struct SettingsView: View {
             loginItemError = error.localizedDescription
             launchAtLogin = SMAppService.mainApp.status == .enabled
         }
+    }
+}
+
+private struct Caption: View {
+    let text: Text
+
+    init(_ key: LocalizedStringKey) {
+        text = Text(key)
+    }
+
+    init(_ string: String) {
+        text = Text(string)
+    }
+
+    var body: some View {
+        text
+            .font(.caption)
+            .foregroundStyle(.secondary)
     }
 }

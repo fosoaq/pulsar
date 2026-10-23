@@ -12,6 +12,8 @@ final class AppModel {
     private(set) var dashboardError: String?
     private(set) var storeError: String?
     private(set) var hostnameError: String?
+    /// Why the last delivery to Telegram, ntfy or the webhook failed, if it did.
+    private(set) var deliveryError: String?
 
     var settings: AppSettings {
         didSet {
@@ -41,8 +43,9 @@ final class AppModel {
             store = try ResultStore.makeDefault()
         } catch {
             store = nil
-            storeError = "Could not open the history database: \(error.localizedDescription)"
+            storeError = String(localized: "Could not open the history database: \(error.localizedDescription)")
         }
+        pruneHistory()
         reload()
         notifier.requestAuthorization()
         hostname.onError = { [weak self] message in
@@ -111,15 +114,33 @@ final class AppModel {
             do {
                 result = try store.insert(result)
             } catch {
-                storeError = "Could not save the result: \(error.localizedDescription)"
+                storeError = String(localized: "Could not save the result: \(error.localizedDescription)")
             }
         }
+        pruneHistory()
         if store == nil || storeError != nil {
             recent.insert(result, at: 0)
         } else {
             reload()
         }
-        notifier.report(result, settings: settings)
+
+        let alert = Alert.make(for: result, settings: settings)
+        if let alert {
+            notifier.post(alert)
+        }
+        await deliver(result: result, alert: alert)
+    }
+
+    /// Sends a sample alert through every configured channel.
+    func sendTestNotification() async {
+        let alert = Alert(title: String(localized: "Pulsar test notification"), body: String(localized: "Notifications from Pulsar reach you here."))
+        notifier.post(alert)
+        await deliver(result: nil, alert: alert)
+    }
+
+    private func deliver(result: SpeedTestResult?, alert: Alert?) async {
+        let failures = await RemoteChannels(settings: settings).deliver(result: result, alert: alert)
+        deliveryError = failures.isEmpty ? nil : failures.joined(separator: "\n")
     }
 
     private func reload() {
@@ -127,8 +148,13 @@ final class AppModel {
         do {
             recent = try store.results(since: .now.addingTimeInterval(-30 * 86_400))
         } catch {
-            storeError = "Could not read the history: \(error.localizedDescription)"
+            storeError = String(localized: "Could not read the history: \(error.localizedDescription)")
         }
+    }
+
+    private func pruneHistory() {
+        guard settings.keepDays > 0, let store else { return }
+        _ = try? store.deleteResults(before: .now.addingTimeInterval(-Double(settings.keepDays) * 86_400))
     }
 
     private func startScheduler() {
@@ -162,13 +188,32 @@ final class AppModel {
         if previous?.dashboardEnabled != settings.dashboardEnabled || previous?.dashboardPort != settings.dashboardPort {
             restartDashboard()
         }
+        if previous != nil, previous?.keepDays != settings.keepDays {
+            pruneHistory()
+            reload()
+        }
     }
 
     private func restartDashboard() {
         dashboard.stop()
         dashboardError = nil
         guard settings.dashboardEnabled, let store else { return }
-        dashboard.start(port: settings.dashboardPort, store: store) { [weak self] message in
+        let controls = DashboardControls(
+            runTest: { [weak self] in
+                guard let self, !isRunning, !needsOoklaLicense else { return false }
+                runNow()
+                return true
+            },
+            status: { [weak self] in
+                DashboardControls.Status(
+                    running: self?.isRunning ?? false,
+                    paused: self?.needsOoklaLicense ?? false,
+                    nextRun: self?.nextRunDate ?? .now,
+                    engine: self?.settings.engine.rawValue ?? ""
+                )
+            }
+        )
+        dashboard.start(port: settings.dashboardPort, store: store, controls: controls) { [weak self] message in
             self?.dashboardError = message
         }
     }

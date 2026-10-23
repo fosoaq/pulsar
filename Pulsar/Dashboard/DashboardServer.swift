@@ -1,12 +1,31 @@
 import Foundation
 import Hummingbird
 
-/// Serves the dashboard page and a read-only JSON API on every interface.
+/// What the dashboard can ask of the app.
+struct DashboardControls: Sendable {
+    struct Status: Encodable, Sendable {
+        let running: Bool
+        let paused: Bool
+        let nextRun: Date
+        let engine: String
+    }
+
+    /// Starts a test; false when one is running already or tests are paused.
+    let runTest: @MainActor @Sendable () -> Bool
+    let status: @MainActor @Sendable () -> Status
+}
+
+/// Serves the dashboard page, a JSON API, CSV export and Prometheus metrics on every interface.
 @MainActor
 final class DashboardServer {
+    /// Browsers only send this header from the dashboard's own origin: another site
+    /// would need a CORS preflight, which the server never approves. That keeps a page
+    /// elsewhere from starting tests with a plain form or fetch.
+    nonisolated static let runHeader = "X-Pulsar-Run"
+
     private var task: Task<Void, Never>?
 
-    func start(port: Int, store: ResultStore, onError: @escaping @MainActor @Sendable (String) -> Void) {
+    func start(port: Int, store: ResultStore, controls: DashboardControls, onError: @escaping @MainActor @Sendable (String) -> Void) {
         let previous = task
         previous?.cancel()
         task = Task.detached {
@@ -24,13 +43,40 @@ final class DashboardServer {
                 )
             }
             router.get("/api/results") { request, _ in
-                let days = min(max(request.uri.queryParameters.get("days", as: Int.self) ?? 7, 1), 365)
-                let results = try store.results(since: .now.addingTimeInterval(-Double(days) * 86_400))
-                return try Self.json(results)
+                try Self.json(store.results(since: Self.start(request)))
+            }
+            router.get("/api/results.csv") { request, _ in
+                let csv = try DashboardFormats.csv(store.results(since: Self.start(request)))
+                return Response(
+                    status: .ok,
+                    headers: [
+                        .contentType: "text/csv; charset=utf-8",
+                        .contentDisposition: "attachment; filename=\"pulsar-results.csv\"",
+                    ],
+                    body: .init(byteBuffer: ByteBuffer(string: csv))
+                )
             }
             router.get("/api/latest") { _, _ in
                 let results = try store.results(since: .now.addingTimeInterval(-365 * 86_400))
                 return try Self.json(results.first(where: \.succeeded))
+            }
+            router.get("/api/status") { _, _ in
+                try await Self.json(controls.status())
+            }
+            router.post("/api/run") { request, _ in
+                guard request.headers.contains(where: { $0.name.canonicalName == Self.runHeader.lowercased() }) else {
+                    return Response(status: .forbidden)
+                }
+                return await controls.runTest() ? Response(status: .accepted) : Response(status: .conflict)
+            }
+            router.get("/metrics") { _, _ in
+                let results = try store.results(since: .now.addingTimeInterval(-365 * 86_400))
+                let text = DashboardFormats.metrics(latest: results.first, lastSuccess: results.first(where: \.succeeded))
+                return Response(
+                    status: .ok,
+                    headers: [.contentType: "text/plain; version=0.0.4; charset=utf-8"],
+                    body: .init(byteBuffer: ByteBuffer(string: text))
+                )
             }
 
             let app = Application(
@@ -41,13 +87,19 @@ final class DashboardServer {
                 try await app.run()
             } catch is CancellationError {
             } catch {
-                await onError("Dashboard could not start on port \(port): \(error.localizedDescription)")
+                await onError(String(localized: "Dashboard could not start on port \(port): \(error.localizedDescription)"))
             }
         }
     }
 
     func stop() {
         task?.cancel()
+    }
+
+    /// `?days=` clamped to a year, 7 by default.
+    private nonisolated static func start(_ request: Request) -> Date {
+        let days = min(max(request.uri.queryParameters.get("days", as: Int.self) ?? 7, 1), 365)
+        return .now.addingTimeInterval(-Double(days) * 86_400)
     }
 
     private nonisolated static func json(_ value: some Encodable) throws -> Response {

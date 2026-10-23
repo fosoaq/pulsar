@@ -17,8 +17,13 @@ enum Format {
     }
 
     static func interval(minutes: Int) -> String {
-        if minutes < 60 { return "\(minutes) minutes" }
-        let hours = minutes / 60
-        return hours == 1 ? "1 hour" : "\(hours) hours"
+        let duration: Duration = .seconds(minutes * 60)
+        return duration.formatted(.units(allowed: [.hours, .minutes], width: .wide))
+    }
+
+    static func keepDays(_ days: Int) -> String {
+        if days == 0 { return String(localized: "Forever") }
+        if days % 365 == 0 { return String(localized: "\(days / 365) years") }
+        return String(localized: "\(days) days")
     }
 }

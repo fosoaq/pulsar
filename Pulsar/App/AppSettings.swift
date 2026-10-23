@@ -14,8 +14,16 @@ struct AppSettings: Codable, Equatable, Sendable {
     var dashboardPort = 8765
     /// Published as `<name>.local`; empty leaves only the Mac's own name and IP.
     var dashboardHostname = "pulsar"
+    /// Days of history to keep; 0 keeps everything.
+    var keepDays = 365
+    // Remote channels; an empty field turns that channel off.
+    var telegramBotToken = ""
+    var telegramChatID = ""
+    var ntfyURL = ""
+    var webhookURL = ""
 
     static let intervalChoices = [15, 30, 60, 120, 180, 360, 720, 1440]
+    static let keepDaysChoices = [30, 90, 180, 365, 730, 0]
 
     /// Keeps what a DNS label allows: lowercase letters, digits and hyphens, at most 63.
     /// Hyphens at the ends survive so they can be typed; `applyHostname` trims them.
@@ -40,6 +48,11 @@ struct AppSettings: Codable, Equatable, Sendable {
         dashboardEnabled = try container.decodeIfPresent(Bool.self, forKey: .dashboardEnabled) ?? defaults.dashboardEnabled
         dashboardPort = try container.decodeIfPresent(Int.self, forKey: .dashboardPort) ?? defaults.dashboardPort
         dashboardHostname = try container.decodeIfPresent(String.self, forKey: .dashboardHostname) ?? defaults.dashboardHostname
+        keepDays = try container.decodeIfPresent(Int.self, forKey: .keepDays) ?? defaults.keepDays
+        telegramBotToken = try container.decodeIfPresent(String.self, forKey: .telegramBotToken) ?? defaults.telegramBotToken
+        telegramChatID = try container.decodeIfPresent(String.self, forKey: .telegramChatID) ?? defaults.telegramChatID
+        ntfyURL = try container.decodeIfPresent(String.self, forKey: .ntfyURL) ?? defaults.ntfyURL
+        webhookURL = try container.decodeIfPresent(String.self, forKey: .webhookURL) ?? defaults.webhookURL
     }
 
     private static let defaultsKey = "settings"

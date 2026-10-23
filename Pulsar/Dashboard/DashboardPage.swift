@@ -16,6 +16,10 @@ enum DashboardPage {
     header{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;margin-bottom:20px}
     h1{font-size:22px;margin:0}
     .sub{color:var(--muted);font-size:13px}
+    .controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+    .btn{border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 14px;border-radius:10px;font:inherit;font-size:13px;cursor:pointer;text-decoration:none}
+    .btn.primary{background:var(--down);border-color:var(--down);color:#fff}
+    .btn:disabled{opacity:.55;cursor:default}
     .ranges{display:flex;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:3px}
     .ranges button{border:0;background:none;color:var(--text);padding:6px 12px;border-radius:7px;font:inherit;font-size:13px;cursor:pointer}
     .ranges button[aria-pressed=true]{background:var(--down);color:#fff}
@@ -42,7 +46,11 @@ enum DashboardPage {
     <main>
     <header>
       <div><h1>Pulsar</h1><div class="sub" id="updated">Loading…</div></div>
-      <div class="ranges" id="ranges"></div>
+      <div class="controls">
+        <button class="btn primary" id="run">Run test</button>
+        <a class="btn" id="csv" href="/api/results.csv?days=7">CSV</a>
+        <div class="ranges" id="ranges"></div>
+      </div>
     </header>
     <section class="tiles" id="tiles"></section>
     <section class="card chart">
@@ -82,13 +90,42 @@ enum DashboardPage {
       load();
     });
 
+    let wasRunning = false;
+    async function refreshStatus() {
+      try {
+        const status = await (await fetch("/api/status")).json();
+        const button = $("run");
+        button.disabled = status.running || status.paused;
+        button.textContent = status.running ? "Testing…" : "Run test";
+        button.title = status.paused ? "Accept the Speedtest license in Pulsar's settings first" : "";
+        if (wasRunning && !status.running) load();
+        wasRunning = status.running;
+        $("updated").dataset.next = status.paused ? "Tests paused" : `Next test ${new Date(status.nextRun).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`;
+        showUpdated();
+        if (status.running) setTimeout(refreshStatus, 3000);
+      } catch (e) {}
+    }
+
+    $("run").addEventListener("click", async () => {
+      $("run").disabled = true;
+      await fetch("/api/run", {method: "POST", headers: {"X-Pulsar-Run": "1"}});
+      refreshStatus();
+    });
+
+    function showUpdated() {
+      const el = $("updated");
+      el.textContent = [el.dataset.updated, el.dataset.next].filter(Boolean).join(" · ");
+    }
+
     async function load() {
       try {
         const response = await fetch(`/api/results?days=${days}`);
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         data = (await response.json()).map(r => ({...r, date: new Date(r.date)}));
         render();
-        $("updated").textContent = `Updated ${new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`;
+        $("csv").href = `/api/results.csv?days=${days}`;
+        $("updated").dataset.updated = `Updated ${new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`;
+        showUpdated();
       } catch (e) {
         $("updated").textContent = `Could not load results: ${e.message}`;
       }
@@ -162,7 +199,8 @@ enum DashboardPage {
 
     renderRanges();
     load();
-    setInterval(load, 60000);
+    refreshStatus();
+    setInterval(() => { load(); refreshStatus(); }, 60000);
     addEventListener("resize", drawChart);
     </script>
     </body>
