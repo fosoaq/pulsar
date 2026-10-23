@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pulsar — internet speed monitor for macOS</title>
+<meta name="description" content="Pulsar is a macOS menu bar app that runs internet speed tests on a schedule, keeps the history and serves a dashboard to your local network.">
+<link rel="icon" href="images/icon.png">
+<style>
+:root{--bg:#fafafa;--text:#18181b;--muted:#71717a;--faint:#a1a1aa;--rule:#ececee;--code:#f1f1f2;--accent:#2563eb;color-scheme:light}
+@media (prefers-color-scheme:dark){:root{--bg:#0e0e10;--text:#ededef;--muted:#8b8b93;--faint:#5c5c64;--rule:#1d1d21;--code:#18181b;--accent:#6ea8fe;color-scheme:dark}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:760px;margin:0 auto;padding:72px 24px 96px}
+a{color:inherit;text-underline-offset:3px;text-decoration-color:var(--faint)}
+a:hover{text-decoration-color:currentColor}
+h1{font-size:44px;font-weight:700;letter-spacing:-.035em;line-height:1.05;margin:0}
+h2{font-size:24px;font-weight:650;letter-spacing:-.02em;margin:0 0 16px;scroll-margin-top:24px}
+h3{font-size:17px;font-weight:600;margin:32px 0 8px}
+p{margin:0 0 16px}
+ul,ol{margin:0 0 16px;padding-left:22px}
+li{margin:4px 0}
+code{font:13.5px/1.5 ui-monospace,SFMono-Regular,Menlo,monospace;background:var(--code);border-radius:5px;padding:1px 5px}
+pre{background:var(--code);border-radius:10px;padding:16px 18px;overflow-x:auto;margin:0 0 20px}
+pre code{background:none;padding:0;font-size:13px}
+table{width:100%;border-collapse:collapse;font-size:15px;margin:0 0 20px}
+th,td{text-align:left;padding:10px 12px 10px 0;vertical-align:top}
+th{color:var(--muted);font-weight:400;font-size:14px}
+tbody tr td{border-top:1px solid var(--rule)}
+td code{white-space:nowrap}
+.muted{color:var(--muted)}
+
+.hero{display:flex;gap:24px;align-items:center;margin-bottom:24px}
+.hero img{width:88px;height:88px}
+.lead{font-size:20px;line-height:1.5;color:var(--muted);margin:0 0 32px;max-width:600px}
+.cta{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;margin-bottom:64px}
+.button{background:var(--text);color:var(--bg);text-decoration:none;border-radius:10px;padding:12px 22px;font-weight:500}
+.cta .muted{font-size:14px}
+figure{margin:0 0 72px}
+/* Screenshots sit on a slightly different surface so a dark capture does not melt into a dark page. */
+figure img{display:block;width:100%;height:auto;border-radius:14px;background:var(--code);padding:10px}
+figcaption{color:var(--muted);font-size:14px;margin-top:12px}
+.wide{width:min(920px,calc(100vw - 48px));margin-left:50%;transform:translateX(-50%)}
+
+nav.toc{display:flex;flex-wrap:wrap;gap:8px 24px;margin:0 0 72px;font-size:15px}
+nav.toc a{text-decoration:none;color:var(--muted)}
+nav.toc a:hover{color:var(--text)}
+section{margin-bottom:72px}
+.features{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px 40px;margin-top:8px}
+.features h3{margin:0 0 4px;font-size:16px}
+.features p{color:var(--muted);margin:0;font-size:15px}
+footer{color:var(--faint);font-size:14px;display:flex;flex-wrap:wrap;gap:6px 20px}
+footer a{text-decoration:none}
+footer a:hover{color:var(--text)}
+@media (max-width:600px){h1{font-size:36px}.hero img{width:64px;height:64px}.lead{font-size:18px}main{padding-top:48px}}
+</style>
+</head>
+<body>
+<main>
+
+<div class="hero">
+  <img src="images/icon.png" alt="">
+  <h1>Pulsar</h1>
+</div>
+<p class="lead">An internet speed monitor that lives in the macOS menu bar. It runs speed tests on a schedule, keeps the history and serves a dashboard to every device on your local network.</p>
+<div class="cta">
+  <a class="button" href="https://github.com/fosoaq/pulsar/releases/latest">Download for macOS</a>
+  <a href="https://github.com/fosoaq/pulsar">Source on GitHub</a>
+  <span class="muted">macOS 14 or later · Apple silicon and Intel · free</span>
+</div>
+
+<figure class="wide">
+  <img src="images/dashboard-overview.jpg" alt="Pulsar dashboard: download, upload, ping and jitter, and a chart of the last seven days" width="1100" height="779">
+  <figcaption>The dashboard, open from any device on the network. The data in these screenshots is made up.</figcaption>
+</figure>
+
+<nav class="toc">
+  <a href="#features">Features</a>
+  <a href="#install">Install</a>
+  <a href="#engines">Speed test engines</a>
+  <a href="#dashboard">Dashboard</a>
+  <a href="#notifications">Notifications</a>
+  <a href="#api">HTTP API</a>
+  <a href="#metrics">Prometheus</a>
+  <a href="#faq">FAQ</a>
+  <a href="#build">Building</a>
+</nav>
+
+<section id="features">
+  <h2>Features</h2>
+  <div class="features">
+    <div><h3>Menu bar first</h3><p>Latest download, upload and ping, a 24-hour chart and a button to test now, one click away.</p></div>
+    <div><h3>Scheduled tests</h3><p>Every 15 minutes to once a day, with a retry five minutes after a failure. The Mac stays awake for them.</p></div>
+    <div><h3>Ping under load</h3><p>Besides idle ping and jitter, Pulsar records ping during the download and upload, which shows how the line copes when it is busy.</p></div>
+    <div><h3>LAN dashboard</h3><p>Overview, full results and statistics at <code>http://pulsar.local</code>, with no account and no cloud.</p></div>
+    <div><h3>Alerts</h3><p>Notification Center, Telegram and ntfy when a test fails or speed drops below a threshold. A webhook gets every result.</p></div>
+    <div><h3>Your data</h3><p>Results stay in a SQLite file on your Mac. Export CSV, read the JSON API or scrape Prometheus metrics.</p></div>
+  </div>
+</section>
+
+<section id="install">
+  <h2>Install</h2>
+  <ol>
+    <li>Download <code>Pulsar-&lt;version&gt;.zip</code> from <a href="https://github.com/fosoaq/pulsar/releases/latest">the latest release</a>, unzip it and move <code>Pulsar.app</code> to Applications.</li>
+    <li>Pulsar is not notarized by Apple, so macOS blocks the first launch. Open System Settings → Privacy &amp; Security and click <strong>Open Anyway</strong>, or run once:
+      <pre><code>xattr -dr com.apple.quarantine /Applications/Pulsar.app</code></pre>
+    </li>
+    <li>Pulsar appears in the menu bar and runs its first test. It adds itself to login items on the first launch from Applications; Settings → General turns that off.</li>
+  </ol>
+  <p>Pulsar is meant for a Mac that stays on, such as a Mac mini. Tests do not run while the Mac sleeps; see the <a href="#faq">FAQ</a>.</p>
+  <p>When a newer release is out, the menu shows a link to it.</p>
+</section>
+
+<section id="engines">
+  <h2>Speed test engines</h2>
+  <h3>Ookla Speedtest CLI</h3>
+  <p>The same measurement as speedtest.net, against the nearest server or one you pick. It is the default when installed. Ookla's license does not allow bundling the CLI, so install it with Homebrew:</p>
+  <pre><code>brew install teamookla/speedtest/speedtest</code></pre>
+  <p>Ookla asks you to accept its license before the first test. Pulsar shows the license links in Settings → Testing and, once you tick the box, passes <code>--accept-license --accept-gdpr</code> for you. The same tab picks the server scheduled tests use; a test started from the dashboard can use another one.</p>
+  <h3>Apple networkQuality</h3>
+  <p>Built into macOS, nothing to install. It measures against Apple's CDN and reports responsiveness under load in round trips per minute (RPM) instead of ping under load.</p>
+</section>
+
+<section id="dashboard">
+  <h2>Dashboard</h2>
+  <p>Pulsar serves a dashboard to your local network, by default at <code>http://pulsar.local:8765</code>. Settings → Dashboard changes the name and the port; with port 80 the address is just <code>http://pulsar.local</code>. For devices that cannot open <code>.local</code> names, the same tab shows the address by IP.</p>
+  <ul>
+    <li><strong>Overview</strong> — the latest results, a speed or ping chart and the most recent tests.</li>
+    <li><strong>Results</strong> — every test with ping under load and packet loss, a failures filter and CSV export.</li>
+    <li><strong>Statistics</strong> — success rate, tests below your alert threshold, average, median and range, download by hour of day and averages per server.</li>
+  </ul>
+  <figure>
+    <img src="images/dashboard-statistics.jpg" alt="Statistics tab: success rate, tests below threshold, slowest hour, summary table and download by hour of day" width="1100" height="779" loading="lazy">
+    <figcaption>Statistics: the slowest hour is marked when it is clearly slower than the rest.</figcaption>
+  </figure>
+  <p>The dashboard has no login, so anyone on your network can open it and start a test. It answers only to <code>localhost</code>, <code>.local</code> names and IP addresses, which keeps web pages elsewhere from reading it through DNS rebinding, and starting a test needs a header other sites cannot send.</p>
+</section>
+
+<section id="notifications">
+  <h2>Notifications</h2>
+  <p>Settings → Notifications sets when to alert: when a test fails, and when download or upload falls below a threshold (0 turns a threshold off). Alerts always appear in Notification Center on the Mac; each channel below is on once its fields are filled. <strong>Send Test Notification</strong> checks them all.</p>
+  <h3>Telegram</h3>
+  <ol>
+    <li>Create a bot with <a href="https://t.me/BotFather">@BotFather</a> and copy its token.</li>
+    <li>Send the bot any message, then get your chat ID from <a href="https://t.me/userinfobot">@userinfobot</a>.</li>
+    <li>Paste both into Settings.</li>
+  </ol>
+  <h3>ntfy</h3>
+  <p>Enter a topic URL such as <code>https://ntfy.sh/my-pulsar</code> and subscribe to the same topic in the <a href="https://ntfy.sh">ntfy</a> app. A self-hosted server works too.</p>
+  <h3>Webhook</h3>
+  <p>Pulsar sends a <code>POST</code> with JSON after every test, with an <code>alert</code> when one applies. <code>event</code> is <code>test.completed</code>, <code>test.failed</code> or <code>test.notification</code>; fields without a value are left out.</p>
+<pre><code>{
+  "event": "test.completed",
+  "alert": { "title": "Slow connection", "body": "Download 412 Mbps, below 800" },
+  "result": {
+    "id": 1042,
+    "date": "2026-10-24T18:00:12Z",
+    "engine": "ookla",
+    "downloadMbps": 412.3,
+    "uploadMbps": 458.1,
+    "latencyMs": 3.6,
+    "jitterMs": 0.4,
+    "downloadLatencyMs": 14.2,
+    "uploadLatencyMs": 19.8,
+    "packetLossPercent": 0,
+    "interfaceName": "en0",
+    "server": "Example Fiber, Springfield",
+    "isp": "Example ISP",
+    "resultURL": "https://www.speedtest.net/result/c/…"
+  }
+}</code></pre>
+</section>
+
+<section id="api">
+  <h2>HTTP API</h2>
+  <p>The dashboard server also answers these requests. Dates are ISO 8601 in UTC, speeds in Mbps and times in milliseconds.</p>
+  <table>
+    <thead><tr><th>Request</th><th>Returns</th></tr></thead>
+    <tbody>
+      <tr><td><code>GET /api/results?days=7</code></td><td>Results as JSON, newest first, for 1 to 365 days</td></tr>
+      <tr><td><code>GET /api/results.csv?days=7</code></td><td>The same as CSV</td></tr>
+      <tr><td><code>GET /api/latest</code></td><td>The last successful result</td></tr>
+      <tr><td><code>GET /api/status</code></td><td>Whether a test is running, when the next one is due, the engine and thresholds</td></tr>
+      <tr><td><code>GET /api/servers</code></td><td>Nearby Ookla servers</td></tr>
+      <tr><td><code>POST /api/run?server=ID</code></td><td>Starts a test, optionally on an Ookla server. Needs the header <code>X-Pulsar-Run: 1</code>; answers 202, or 409 while a test is running</td></tr>
+      <tr><td><code>GET /metrics</code></td><td>Prometheus metrics</td></tr>
+    </tbody>
+  </table>
+<pre><code>curl -X POST -H 'X-Pulsar-Run: 1' http://pulsar.local:8765/api/run</code></pre>
+</section>
+
+<section id="metrics">
+  <h2>Prometheus</h2>
+  <p><code>/metrics</code> reports the last successful test and whether the latest one worked:</p>
+  <table>
+    <thead><tr><th>Metric</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>pulsar_download_mbps</code>, <code>pulsar_upload_mbps</code></td><td>Speed</td></tr>
+      <tr><td><code>pulsar_latency_ms</code>, <code>pulsar_jitter_ms</code></td><td>Idle ping and jitter</td></tr>
+      <tr><td><code>pulsar_download_latency_ms</code>, <code>pulsar_upload_latency_ms</code></td><td>Ping under load</td></tr>
+      <tr><td><code>pulsar_packet_loss_percent</code></td><td>Packet loss</td></tr>
+      <tr><td><code>pulsar_responsiveness_rpm</code></td><td>Responsiveness, networkQuality only</td></tr>
+      <tr><td><code>pulsar_last_test_success</code></td><td>1 if the latest test succeeded, 0 if it failed</td></tr>
+      <tr><td><code>pulsar_last_test_timestamp_seconds</code>, <code>pulsar_last_success_timestamp_seconds</code></td><td>When they finished</td></tr>
+    </tbody>
+  </table>
+<pre><code>scrape_configs:
+  - job_name: pulsar
+    scrape_interval: 5m
+    static_configs:
+      - targets: ["192.168.1.20:8765"]</code></pre>
+</section>
+
+<section id="faq">
+  <h2>FAQ</h2>
+  <h3>Does Pulsar test while the Mac sleeps?</h3>
+  <p>No. macOS freezes apps during sleep, so neither tests nor the dashboard run then. Pulsar keeps the Mac from idle-sleeping while it runs (the display still turns off); you can turn that off in Settings → Testing. A Mac mini on Ethernet makes a good always-on monitor.</p>
+  <h3>Wi-Fi or Ethernet?</h3>
+  <p>Over Wi-Fi the result shows the speed in that room as much as the speed of your plan. For the line itself, use Ethernet.</p>
+  <h3>Why are Ookla and networkQuality results different?</h3>
+  <p>They measure against different servers in different ways. Pulsar's averages and statistics use the engine of the latest test so the two are not mixed.</p>
+  <h3>Where is my data?</h3>
+  <p>In <code>~/Library/Application Support/Pulsar/pulsar.sqlite</code>, kept for a year by default (Settings → Testing). Pulsar sends results nowhere except the channels you set up. Ookla's CLI reports each test to Ookla, as speedtest.net does.</p>
+  <h3>What languages does Pulsar speak?</h3>
+  <p>English and Russian. The app follows the macOS language (System Settings → General → Language &amp; Region → Applications sets it per app); the dashboard follows the browser.</p>
+</section>
+
+<section id="build">
+  <h2>Building from source</h2>
+  <p>Requires Xcode 16 or later.</p>
+<pre><code>git clone https://github.com/fosoaq/pulsar.git
+cd pulsar
+scripts/install.sh                                   # build a Release copy into /Applications
+xcodebuild test -project Pulsar.xcodeproj -scheme Pulsar</code></pre>
+  <p>Pulsar is written in Swift and SwiftUI, stores results with <a href="https://github.com/groue/GRDB.swift">GRDB</a> and serves the dashboard with <a href="https://github.com/hummingbird-project/hummingbird">Hummingbird</a>.</p>
+</section>
+
+<footer>
+  <span>Pulsar</span>
+  <a href="https://github.com/fosoaq/pulsar">GitHub</a>
+  <a href="https://github.com/fosoaq/pulsar/releases">Releases</a>
+  <a href="https://github.com/fosoaq/pulsar/issues">Issues</a>
+</footer>
+
+</main>
+</body>
+</html>

@@ -1,7 +1,9 @@
 # Pulsar
 
 A macOS menu bar app that runs internet speed tests on a schedule, keeps the history and
-serves a dashboard to your local network. Meant for a Mac that stays on, such as a Mac mini
+serves a dashboard to your local network.
+
+Documentation: https://fosoaq.github.io/pulsar/ Meant for a Mac that stays on, such as a Mac mini
 on Ethernet.
 
 - Lives in the menu bar: latest download, upload, latency and responsiveness, a 24-hour chart,
