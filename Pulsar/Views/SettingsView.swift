@@ -263,9 +263,29 @@ private struct DashboardSettings: View {
 private struct GeneralSettings: View {
     @State private var launchAtLogin = SMAppService.mainApp.status == .enabled
     @State private var loginItemError: String?
+    @State private var language = AppLanguage.current
+    private let launchLanguage = AppLanguage.current
 
     var body: some View {
         Form {
+            Section {
+                Picker("Language", selection: $language) {
+                    Text("System").tag(AppLanguage.system)
+                    Text(verbatim: "English").tag(AppLanguage.english)
+                    Text(verbatim: "Русский").tag(AppLanguage.russian)
+                }
+                .onChange(of: language) { _, newValue in
+                    newValue.save()
+                }
+                if language != launchLanguage {
+                    HStack {
+                        Caption("Relaunch Pulsar to switch the language.")
+                        Spacer()
+                        Button("Relaunch Now", action: AppLanguage.relaunch)
+                    }
+                }
+            }
+
             Section {
                 Toggle("Launch at login", isOn: $launchAtLogin)
                     .onChange(of: launchAtLogin) { _, enabled in

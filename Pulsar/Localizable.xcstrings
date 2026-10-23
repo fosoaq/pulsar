@@ -417,6 +417,16 @@
         }
       }
     },
+    "Language": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Язык"
+          }
+        }
+      }
+    },
     "Last 24 hours": {
       "localizations": {
         "ru": {
@@ -697,6 +707,26 @@
         }
       }
     },
+    "Relaunch Now": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перезапустить"
+          }
+        }
+      }
+    },
+    "Relaunch Pulsar to switch the language.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перезапустите Pulsar, чтобы сменить язык."
+          }
+        }
+      }
+    },
     "Reload the server list": {
       "localizations": {
         "ru": {
@@ -853,6 +883,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Подпишитесь на эту же тему в приложении ntfy на телефоне."
+          }
+        }
+      }
+    },
+    "System": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Как в системе"
           }
         }
       }
