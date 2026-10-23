@@ -72,13 +72,14 @@ struct SettingsView: View {
                 Text("Press Return to apply the address. Port 80 drops the port from the address. Leave the address empty to use only this Mac's name.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                ForEach(model.dashboardURLs, id: \.self) { url in
+                if let url = model.dashboardURL {
                     Link(url.absoluteString, destination: url)
                 }
-                if model.settings.dashboardEnabled {
-                    Text("The second .local name is this Mac's Local hostname from System Settings → General → Sharing. Use the IP address on devices that cannot open .local names.")
+                if let url = model.dashboardIPURL {
+                    Text("On devices that cannot open .local names: \(url.absoluteString)")
                         .font(.caption)
                         .foregroundStyle(.secondary)
+                        .textSelection(.enabled)
                 }
                 if let error = model.dashboardError {
                     Text(error)

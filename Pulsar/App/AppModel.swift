@@ -60,27 +60,25 @@ final class AppModel {
         settings.engine == .ookla && !settings.acceptedOoklaLicense
     }
 
-    /// The address other devices on the network can open.
+    /// The address other devices on the network can open: Pulsar's own `.local` name,
+    /// or the Mac's Local hostname when that name is empty or taken.
     var dashboardURL: URL? {
-        dashboardURLs.first
+        let ownName = settings.dashboardHostname.isEmpty || hostnameError != nil ? nil : settings.dashboardHostname
+        return (ownName ?? SCDynamicStoreCopyLocalHostName(nil) as String?).flatMap { dashboardURL(host: "\($0).local") }
     }
 
-    /// Pulsar's own `.local` name, the Mac's Local hostname from Sharing settings,
-    /// then the IP address for devices that cannot resolve `.local`.
-    var dashboardURLs: [URL] {
-        guard settings.dashboardEnabled else { return [] }
-        let hosts = [
-            settings.dashboardHostname.isEmpty || hostnameError != nil ? nil : "\(settings.dashboardHostname).local",
-            (SCDynamicStoreCopyLocalHostName(nil) as String?).map { "\($0).local" },
-            LocalAddress.current()?.ip,
-        ]
-        return hosts.compactMap { $0 }.compactMap { host in
-            var components = URLComponents()
-            components.scheme = "http"
-            components.host = host
-            components.port = settings.dashboardPort == 80 ? nil : settings.dashboardPort
-            return components.url
-        }
+    /// The same dashboard by IP, for devices that cannot resolve `.local` names.
+    var dashboardIPURL: URL? {
+        LocalAddress.current().flatMap { dashboardURL(host: $0.ip) }
+    }
+
+    private func dashboardURL(host: String) -> URL? {
+        guard settings.dashboardEnabled else { return nil }
+        var components = URLComponents()
+        components.scheme = "http"
+        components.host = host
+        components.port = settings.dashboardPort == 80 ? nil : settings.dashboardPort
+        return components.url
     }
 
     func runNow() {
