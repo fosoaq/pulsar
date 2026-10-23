@@ -4,6 +4,9 @@
     "": {
       "shouldTranslate": false
     },
+    "#%lld": {
+      "shouldTranslate": false
+    },
     "%@ Mbps": {
       "localizations": {
         "ru": {
@@ -167,6 +170,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "После неудачного теста Pulsar повторит его через %lld мин."
+          }
+        }
+      }
+    },
+    "Automatic (nearest)": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Автоматически (ближайший)"
           }
         }
       }
@@ -684,6 +697,16 @@
         }
       }
     },
+    "Reload the server list": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Обновить список серверов"
+          }
+        }
+      }
+    },
     "Responsiveness": {
       "localizations": {
         "ru": {
@@ -724,6 +747,16 @@
         }
       }
     },
+    "Scheduled tests use this server. A test started from the dashboard can pick another one.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тесты по расписанию идут на этот сервер. Для теста с веб-панели можно выбрать другой."
+          }
+        }
+      }
+    },
     "Send Test Notification": {
       "localizations": {
         "ru": {
@@ -740,6 +773,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Веб-панель в локальной сети"
+          }
+        }
+      }
+    },
+    "Server": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Сервер"
           }
         }
       }

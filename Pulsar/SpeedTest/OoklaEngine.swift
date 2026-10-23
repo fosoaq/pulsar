@@ -5,6 +5,8 @@ struct OoklaEngine: SpeedTestEngine {
     let kind = SpeedTestEngineKind.ookla
     /// Set once the user has agreed in Settings; the CLI refuses to run until then.
     var acceptLicense = false
+    /// A server from `servers()`; nil lets the CLI pick the nearest.
+    var serverID: Int?
 
     static let searchPaths = ["/opt/homebrew/bin/speedtest", "/usr/local/bin/speedtest"]
 
@@ -16,8 +18,35 @@ struct OoklaEngine: SpeedTestEngine {
         guard let path = Self.executablePath else {
             throw SpeedTestError(message: String(localized: "Ookla speedtest is not installed. Install it with `brew install teamookla/speedtest/speedtest`."))
         }
-        let (output, errorOutput, status) = try await runTool(path, arguments: ["--format=json", "--progress=no"] + (acceptLicense ? ["--accept-license", "--accept-gdpr"] : []))
+        var arguments = ["--format=json", "--progress=no"] + Self.licenseArguments(acceptLicense)
+        if let serverID {
+            arguments.append("--server-id=\(serverID)")
+        }
+        let (output, errorOutput, status) = try await runTool(path, arguments: arguments)
         return try Self.parse(output: output, errorOutput: errorOutput, status: status)
+    }
+
+    /// The servers nearest to this Mac, as Ookla ranks them.
+    static func servers(acceptLicense: Bool) async throws -> [OoklaServer] {
+        guard let path = executablePath else { return [] }
+        let (output, errorOutput, status) = try await runTool(path, arguments: ["--servers", "--format=json"] + licenseArguments(acceptLicense))
+        return try parseServers(output: output, errorOutput: errorOutput, status: status)
+    }
+
+    static func parseServers(output: Data, errorOutput: Data, status: Int32) throws -> [OoklaServer] {
+        struct List: Decodable { let servers: [OoklaServer] }
+        if let list = try? JSONDecoder().decode(List.self, from: output) {
+            return list.servers
+        }
+        let text = String(decoding: output + errorOutput, as: UTF8.self)
+        if text.contains("--accept-license") {
+            throw SpeedTestError(message: String(localized: "Accept the Speedtest license in Pulsar Settings."))
+        }
+        throw SpeedTestError(message: "speedtest exited with status \(status): \(text.trimmingCharacters(in: .whitespacesAndNewlines))")
+    }
+
+    private static func licenseArguments(_ accept: Bool) -> [String] {
+        accept ? ["--accept-license", "--accept-gdpr"] : []
     }
 
     static func parse(output: Data, errorOutput: Data, status: Int32, date: Date = .now) throws -> SpeedTestResult {

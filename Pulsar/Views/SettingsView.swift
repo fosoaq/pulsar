@@ -46,6 +46,38 @@ private struct TestingSettings: View {
                 }
             }
 
+            if model.settings.engine == .ookla, OoklaEngine.executablePath != nil {
+                Section {
+                    HStack {
+                        Picker("Server", selection: serverSelection) {
+                            Text("Automatic (nearest)").tag(Int?.none)
+                            if let id = model.settings.ooklaServerID, !model.ooklaServers.contains(where: { $0.id == id }) {
+                                Text(model.settings.ooklaServerName.isEmpty ? "#\(id)" : model.settings.ooklaServerName).tag(Int?.some(id))
+                            }
+                            ForEach(model.ooklaServers) { server in
+                                Text(server.title).tag(Int?.some(server.id))
+                            }
+                        }
+                        Button {
+                            Task { await model.loadOoklaServers(refresh: true) }
+                        } label: {
+                            Image(systemName: "arrow.clockwise")
+                        }
+                        .buttonStyle(.borderless)
+                        .help("Reload the server list")
+                    }
+                    if let error = model.ooklaServersError {
+                        Text(error)
+                            .foregroundStyle(.red)
+                    } else {
+                        Caption("Scheduled tests use this server. A test started from the dashboard can pick another one.")
+                    }
+                }
+                .task {
+                    await model.loadOoklaServers()
+                }
+            }
+
             Section {
                 Picker("Run a test every", selection: $model.settings.intervalMinutes) {
                     ForEach(AppSettings.intervalChoices, id: \.self) { minutes in
@@ -67,6 +99,16 @@ private struct TestingSettings: View {
         }
         .formStyle(.grouped)
         .fixedSize(horizontal: false, vertical: true)
+    }
+
+    private var serverSelection: Binding<Int?> {
+        Binding(
+            get: { model.settings.ooklaServerID },
+            set: { id in
+                model.settings.ooklaServerID = id
+                model.settings.ooklaServerName = model.ooklaServers.first { $0.id == id }?.title ?? ""
+            }
+        )
     }
 
     private var engineNote: String {

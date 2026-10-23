@@ -17,6 +17,9 @@ final class AppModel {
     private(set) var deliveryError: String?
     /// A newer release on GitHub, found by the daily check.
     private(set) var availableUpdate: UpdateChecker.Release?
+    /// Nearby Speedtest.net servers, loaded on demand.
+    private(set) var ooklaServers: [OoklaServer] = []
+    private(set) var ooklaServersError: String?
 
     var settings: AppSettings {
         didSet {
@@ -115,15 +118,29 @@ final class AppModel {
         return components.url
     }
 
-    func runNow() {
+    /// `serverID` overrides the configured Ookla server for this run only.
+    func runNow(serverID: Int? = nil) {
         guard !isRunning, !needsOoklaLicense else { return }
         isRunning = true
-        Task { await performRun() }
+        Task { await performRun(serverID: serverID ?? settings.ooklaServerID) }
     }
 
-    private func performRun() async {
+    /// Lists nearby servers once and keeps them; `refresh` asks the CLI again.
+    @discardableResult
+    func loadOoklaServers(refresh: Bool = false) async -> [OoklaServer] {
+        guard refresh || ooklaServers.isEmpty, OoklaEngine.executablePath != nil else { return ooklaServers }
+        do {
+            ooklaServers = try await OoklaEngine.servers(acceptLicense: settings.acceptedOoklaLicense)
+            ooklaServersError = nil
+        } catch {
+            ooklaServersError = error.localizedDescription
+        }
+        return ooklaServers
+    }
+
+    private func performRun(serverID: Int?) async {
         defer { isRunning = false }
-        let engine = settings.engine.makeEngine(acceptingOoklaLicense: settings.acceptedOoklaLicense)
+        let engine = settings.engine.makeEngine(acceptingOoklaLicense: settings.acceptedOoklaLicense, ooklaServerID: serverID)
         var result: SpeedTestResult
         do {
             result = try await engine.run()
@@ -226,9 +243,9 @@ final class AppModel {
         dashboardError = nil
         guard settings.dashboardEnabled, let store else { return }
         let controls = DashboardControls(
-            runTest: { [weak self] in
+            runTest: { [weak self] serverID in
                 guard let self, !isRunning, !needsOoklaLicense else { return false }
-                runNow()
+                runNow(serverID: serverID)
                 return true
             },
             status: { [weak self] in
@@ -236,8 +253,17 @@ final class AppModel {
                     running: self?.isRunning ?? false,
                     paused: self?.needsOoklaLicense ?? false,
                     nextRun: self?.nextRunDate ?? .now,
-                    engine: self?.settings.engine.rawValue ?? ""
+                    engine: self?.settings.engine.rawValue ?? "",
+                    serverID: self?.settings.ooklaServerID,
+                    minDownloadMbps: self?.settings.minDownloadMbps ?? 0,
+                    minUploadMbps: self?.settings.minUploadMbps ?? 0,
+                    hostName: SCDynamicStoreCopyComputerName(nil, nil) as String? ?? "",
+                    version: Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? ""
                 )
+            },
+            servers: { [weak self] in
+                guard let self, settings.engine == .ookla else { return [] }
+                return await loadOoklaServers()
             }
         )
         dashboard.start(port: settings.dashboardPort, store: store, controls: controls) { [weak self] message in

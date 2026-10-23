@@ -8,11 +8,18 @@ struct DashboardControls: Sendable {
         let paused: Bool
         let nextRun: Date
         let engine: String
+        let serverID: Int?
+        let minDownloadMbps: Double
+        let minUploadMbps: Double
+        let hostName: String
+        let version: String
     }
 
-    /// Starts a test; false when one is running already or tests are paused.
-    let runTest: @MainActor @Sendable () -> Bool
+    /// Starts a test, on the given Ookla server if any; false when one is running already or tests are paused.
+    let runTest: @MainActor @Sendable (Int?) -> Bool
     let status: @MainActor @Sendable () -> Status
+    /// Nearby Ookla servers; empty for networkQuality.
+    let servers: @MainActor @Sendable () async -> [OoklaServer]
 }
 
 /// Serves the dashboard page, a JSON API, CSV export and Prometheus metrics on every interface.
@@ -67,7 +74,11 @@ final class DashboardServer {
                 guard request.headers.contains(where: { $0.name.canonicalName == Self.runHeader.lowercased() }) else {
                     return Response(status: .forbidden)
                 }
-                return await controls.runTest() ? Response(status: .accepted) : Response(status: .conflict)
+                let serverID = request.uri.queryParameters.get("server", as: Int.self)
+                return await controls.runTest(serverID) ? Response(status: .accepted) : Response(status: .conflict)
+            }
+            router.get("/api/servers") { _, _ in
+                try await Self.json(controls.servers())
             }
             router.get("/metrics") { _, _ in
                 let results = try store.results(since: .now.addingTimeInterval(-365 * 86_400))

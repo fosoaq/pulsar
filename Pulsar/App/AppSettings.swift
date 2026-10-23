@@ -4,6 +4,10 @@ struct AppSettings: Codable, Equatable, Sendable {
     /// Ookla when it is installed, so a fresh install works without it too.
     var engine: SpeedTestEngineKind = OoklaEngine.executablePath != nil ? .ookla : .networkQuality
     var acceptedOoklaLicense = false
+    /// The server scheduled Ookla tests use; nil picks the nearest each time.
+    var ooklaServerID: Int?
+    /// Kept so Settings can name the server without listing servers first.
+    var ooklaServerName = ""
     var intervalMinutes = 60
     var preventSleep = true
     var notifyOnFailure = true
@@ -40,6 +44,8 @@ struct AppSettings: Codable, Equatable, Sendable {
         let defaults = AppSettings()
         engine = (try? container.decodeIfPresent(SpeedTestEngineKind.self, forKey: .engine)) ?? defaults.engine
         acceptedOoklaLicense = try container.decodeIfPresent(Bool.self, forKey: .acceptedOoklaLicense) ?? defaults.acceptedOoklaLicense
+        ooklaServerID = try container.decodeIfPresent(Int.self, forKey: .ooklaServerID)
+        ooklaServerName = try container.decodeIfPresent(String.self, forKey: .ooklaServerName) ?? defaults.ooklaServerName
         intervalMinutes = try container.decodeIfPresent(Int.self, forKey: .intervalMinutes) ?? defaults.intervalMinutes
         preventSleep = try container.decodeIfPresent(Bool.self, forKey: .preventSleep) ?? defaults.preventSleep
         notifyOnFailure = try container.decodeIfPresent(Bool.self, forKey: .notifyOnFailure) ?? defaults.notifyOnFailure
