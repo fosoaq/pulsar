@@ -26,7 +26,8 @@ on Ethernet.
 | `GET /api/results.csv?days=7` | The same as CSV |
 | `GET /api/latest` | The last successful result |
 | `GET /api/status` | Whether a test is running and when the next one is due |
-| `POST /api/run` | Starts a test; needs the header `X-Pulsar-Run: 1` |
+| `POST /api/run?server=ID` | Starts a test, optionally on an Ookla server; needs the header `X-Pulsar-Run: 1` |
+| `GET /api/servers` | Nearby Ookla servers |
 | `GET /metrics` | Prometheus metrics for the last test |
 
 Requests must use `localhost`, a `.local` name or an IP address as the host.
