@@ -13,40 +13,41 @@ enum DashboardPage {
     @media (prefers-color-scheme:dark){:root{--bg:#0e0e10;--text:#ededef;--muted:#8b8b93;--faint:#5c5c64;--rule:#1d1d21;--accent:#6ea8fe;--second:#8b8b93;--bad:#f87171;color-scheme:dark}}
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-    main{max-width:1040px;margin:0 auto;padding:40px 20px 64px}
+    main{max-width:1080px;margin:0 auto;padding:64px 32px 80px}
+    @media (max-width:640px){main{padding:32px 20px 56px}}
     a{color:inherit}
     button,select{font:inherit;color:inherit}
 
-    header{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:flex-end;justify-content:space-between}
-    .brand h1{font-size:20px;font-weight:600;letter-spacing:-.01em;margin:0}
-    .brand p{margin:2px 0 0;color:var(--muted);font-size:14px}
-    .actions{display:flex;flex-wrap:wrap;gap:6px 16px;align-items:center;color:var(--muted);font-size:14px}
-    .run{background:var(--text);color:var(--bg);border:0;border-radius:8px;padding:8px 16px;font-size:14px;font-weight:500;cursor:pointer}
+    header{display:flex;flex-wrap:wrap;gap:24px 48px;align-items:center;justify-content:space-between}
+    .brand h1{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1.1;margin:0}
+    .brand p{margin:6px 0 0;color:var(--muted);font-size:15px}
+    .actions{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center}
+    .run{background:var(--text);color:var(--bg);border:0;border-radius:10px;padding:11px 20px;font-size:15px;font-weight:500;cursor:pointer}
     .run:disabled{opacity:.4;cursor:default}
-    select{background:none;border:0;padding:4px 0;color:var(--muted);font-size:14px;cursor:pointer;max-width:220px}
+    select{background:none;border:0;padding:4px 0;color:var(--muted);font-size:14px;cursor:pointer;max-width:240px;text-align:right}
     select:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 
-    nav{display:flex;flex-wrap:wrap;gap:8px 28px;align-items:baseline;justify-content:space-between;margin:36px 0 32px}
-    .tabs,.options{display:flex;gap:20px}
+    nav{display:flex;flex-wrap:wrap;gap:16px 32px;align-items:baseline;justify-content:space-between;margin:56px 0 48px}
+    .tabs,.options{display:flex;gap:28px}
     .options{gap:14px}
     .tabs a,.options button{background:none;border:0;padding:0;text-decoration:none;color:var(--faint);cursor:pointer}
-    .tabs a{font-size:15px}
+    .tabs a{font-size:16px;font-weight:500}
     .options button{font-size:14px}
     .tabs a[aria-current=page],.options button[aria-pressed=true]{color:var(--text)}
     .tabs a:hover,.options button:hover{color:var(--text)}
 
-    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:24px;margin-bottom:12px}
+    .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:32px;margin-bottom:20px}
     .metric .label{color:var(--muted);font-size:13px}
-    .metric .value{font-size:40px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15;margin-top:4px}
-    .metric .value small{font-size:15px;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:5px}
-    .metric .note{color:var(--faint);font-size:13px;margin-top:2px;font-variant-numeric:tabular-nums}
-    .last{color:var(--muted);font-size:14px;margin:0 0 40px}
+    .metric .value{font-size:44px;font-weight:600;letter-spacing:-.02em;font-variant-numeric:tabular-nums;line-height:1.15;margin-top:4px}
+    .metric .value small{font-size:15px;font-weight:400;color:var(--muted);letter-spacing:0;margin-left:6px}
+    .metric .note{color:var(--faint);font-size:13px;margin-top:4px;font-variant-numeric:tabular-nums}
+    .last{color:var(--muted);font-size:14px;margin:0 0 72px}
 
-    .section-head{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between;margin:0 0 14px}
-    h2{font-size:15px;font-weight:600;margin:0}
+    .section-head{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between;margin:0 0 20px}
+    h2{font-size:17px;font-weight:600;letter-spacing:-.01em;margin:0}
     .legend{display:flex;gap:18px;color:var(--muted);font-size:13px}
     .legend span::before{content:"";display:inline-block;width:12px;height:2px;border-radius:1px;background:var(--c);vertical-align:middle;margin-right:7px}
-    .chart{position:relative;margin-bottom:48px}
+    .chart{position:relative;margin-bottom:80px}
     svg{display:block;width:100%;touch-action:pan-y;overflow:visible}
     svg text{fill:var(--faint);font-size:11px;font-variant-numeric:tabular-nums}
     .tip{position:absolute;pointer-events:none;background:var(--text);color:var(--bg);border-radius:8px;padding:8px 10px;font-size:12px;line-height:1.5;white-space:nowrap;display:none;z-index:2;font-variant-numeric:tabular-nums}
@@ -54,7 +55,7 @@ enum DashboardPage {
 
     .table-wrap{overflow-x:auto;margin:0 -8px}
     table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
-    th,td{text-align:left;padding:10px 8px;white-space:nowrap}
+    th,td{text-align:left;padding:12px 8px;white-space:nowrap}
     th{color:var(--muted);font-weight:400;font-size:13px}
     tbody tr+tr td{border-top:1px solid var(--rule)}
     td.num,th.num{text-align:right;width:96px}
@@ -67,15 +68,15 @@ enum DashboardPage {
     .more{display:block;margin:20px auto 0;background:none;border:0;color:var(--muted);cursor:pointer;font-size:14px}
     .more:hover{color:var(--text)}
 
-    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:48px 56px;margin-bottom:48px}
-    .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:24px;margin-bottom:48px}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:64px 72px;margin-bottom:80px}
+    .facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:32px;margin-bottom:80px}
     .bars rect{fill:var(--accent)}
     .bars rect.low{fill:var(--bad)}
     .muted{color:var(--muted)}
     a.muted{text-decoration:none}
     a.muted:hover{color:var(--text)}
 
-    footer{margin-top:64px;color:var(--faint);font-size:13px;display:flex;flex-wrap:wrap;gap:6px 18px}
+    footer{margin-top:96px;color:var(--faint);font-size:13px;display:flex;flex-wrap:wrap;gap:6px 18px}
     footer a{text-decoration:none}
     footer a:hover{color:var(--text)}
     [hidden]{display:none!important}
@@ -86,10 +87,9 @@ enum DashboardPage {
     <header>
       <div class="brand">
         <h1>Pulsar</h1>
-        <p id="subtitle" data-i18n>Internet speed monitor</p>
+        <p><span id="subtitle" data-i18n>Internet speed monitor</span><span id="next"></span></p>
       </div>
       <div class="actions">
-        <span id="next"></span>
         <select id="server" hidden aria-label="Server"></select>
         <button class="run" id="run" data-i18n>Run test</button>
       </div>
@@ -145,7 +145,7 @@ enum DashboardPage {
       "Download": "Загрузка", "Upload": "Отдача", "Latency": "Задержка", "Jitter": "Джиттер", "Loss": "Потери",
       "Server": "Сервер", "Time": "Время", "Engine": "Движок", "Speed": "Скорость",
       "avg": "в среднем", "Mbps": "Мбит/с", "ms": "мс", "No data": "Нет данных",
-      "No tests in this range yet.": "За этот период тестов нет.", "Next test at": "Следующий тест в",
+      "No tests in this range yet.": "За этот период тестов нет.", "next test at": "следующий тест в",
       "Tests paused": "Тесты на паузе", "Could not load results": "Не удалось загрузить результаты",
       "Accept the Speedtest license in Pulsar's settings first": "Сначала примите лицензию Speedtest в настройках Pulsar",
       "24h": "24ч", "7d": "7д", "30d": "30д", "90d": "90д", "Show more": "Показать ещё",
@@ -239,7 +239,7 @@ enum DashboardPage {
         button.disabled = status.running || status.paused;
         button.textContent = t(status.running ? "Testing…" : "Run test");
         button.title = status.paused ? t("Accept the Speedtest license in Pulsar's settings first") : "";
-        $("next").textContent = status.running ? "" : status.paused ? t("Tests paused") : `${t("Next test at")} ${fmtClock(new Date(status.nextRun))}`;
+        $("next").textContent = " · " + (status.running ? t("Testing…") : status.paused ? t("Tests paused") : `${t("next test at")} ${fmtClock(new Date(status.nextRun))}`);
         if (status.hostName) $("subtitle").textContent = `${t("Internet speed on")} ${status.hostName}`;
         if (status.version) $("version").textContent = `Pulsar ${status.version}`;
         if (status.engine === "ookla" && $("server").hidden) loadServers();
