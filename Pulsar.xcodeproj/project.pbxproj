@@ -13,12 +13,28 @@
 
 /* Begin PBXFileReference section */
 		A1B2C3D40000000000000201 /* Pulsar.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Pulsar.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1B2C3D40000000000000202 /* PulsarTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PulsarTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXContainerItemProxy section */
+		A1B2C3D40000000000000151 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = A1B2C3D40000000000000001 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = A1B2C3D40000000000000701;
+			remoteInfo = Pulsar;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		A1B2C3D40000000000000401 /* Pulsar */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Pulsar;
+			sourceTree = "<group>";
+		};
+		A1B2C3D40000000000000402 /* PulsarTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PulsarTests;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -33,6 +49,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A1B2C3D40000000000000503 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -40,6 +63,7 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D40000000000000401 /* Pulsar */,
+				A1B2C3D40000000000000402 /* PulsarTests */,
 				A1B2C3D40000000000000602 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -48,6 +72,7 @@
 			isa = PBXGroup;
 			children = (
 				A1B2C3D40000000000000201 /* Pulsar.app */,
+				A1B2C3D40000000000000202 /* PulsarTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -79,6 +104,27 @@
 			productReference = A1B2C3D40000000000000201 /* Pulsar.app */;
 			productType = "com.apple.product-type.application";
 		};
+		A1B2C3D40000000000000702 /* PulsarTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = A1B2C3D40000000000000903 /* Build configuration list for PBXNativeTarget "PulsarTests" */;
+			buildPhases = (
+				A1B2C3D40000000000000803 /* Sources */,
+				A1B2C3D40000000000000503 /* Frameworks */,
+				A1B2C3D40000000000000804 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				A1B2C3D40000000000000152 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				A1B2C3D40000000000000402 /* PulsarTests */,
+			);
+			name = PulsarTests;
+			productName = PulsarTests;
+			productReference = A1B2C3D40000000000000202 /* PulsarTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -91,6 +137,10 @@
 				TargetAttributes = {
 					A1B2C3D40000000000000701 = {
 						CreatedOnToolsVersion = 27.1;
+					};
+					A1B2C3D40000000000000702 = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = A1B2C3D40000000000000701;
 					};
 				};
 			};
@@ -113,12 +163,20 @@
 			projectRoot = "";
 			targets = (
 				A1B2C3D40000000000000701 /* Pulsar */,
+				A1B2C3D40000000000000702 /* PulsarTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		A1B2C3D40000000000000802 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		A1B2C3D40000000000000804 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -135,7 +193,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		A1B2C3D40000000000000803 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		A1B2C3D40000000000000152 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = A1B2C3D40000000000000701 /* Pulsar */;
+			targetProxy = A1B2C3D40000000000000151 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		A1B2C3D40000000000000911 /* Debug */ = {
@@ -229,6 +302,38 @@
 			};
 			name = Release;
 		};
+		A1B2C3D40000000000000931 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.fosoaq.PulsarTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pulsar.app/Contents/MacOS/Pulsar";
+			};
+			name = Debug;
+		};
+		A1B2C3D40000000000000932 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_IDENTITY = "-";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 0.1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = io.github.fosoaq.PulsarTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 6.0;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Pulsar.app/Contents/MacOS/Pulsar";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -246,6 +351,15 @@
 			buildConfigurations = (
 				A1B2C3D40000000000000921 /* Debug */,
 				A1B2C3D40000000000000922 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		A1B2C3D40000000000000903 /* Build configuration list for PBXNativeTarget "PulsarTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				A1B2C3D40000000000000931 /* Debug */,
+				A1B2C3D40000000000000932 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

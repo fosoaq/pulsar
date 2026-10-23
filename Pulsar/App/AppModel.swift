@@ -28,8 +28,15 @@ final class AppModel {
     @ObservationIgnored private let hostname = HostnameAdvertiser()
     @ObservationIgnored private var schedulerTask: Task<Void, Never>?
 
+    /// Unit tests load the app as their host; it must not start testing or serving then.
+    static let isRunningTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+
     init() {
         settings = AppSettings.load()
+        guard !Self.isRunningTests else {
+            store = nil
+            return
+        }
         do {
             store = try ResultStore.makeDefault()
         } catch {
@@ -49,11 +56,14 @@ final class AppModel {
 
     var lastSuccess: SpeedTestResult? { recent.first(where: \.succeeded) }
 
-    /// Due right away when nothing has run yet.
+    /// Due right away when nothing has run yet, and soon again after a failure.
     var nextRunDate: Date {
-        guard let last = latest?.date else { return .now }
-        return last.addingTimeInterval(TimeInterval(settings.intervalMinutes * 60))
+        guard let last = latest else { return .now }
+        let minutes = last.succeeded ? settings.intervalMinutes : min(Self.retryMinutes, settings.intervalMinutes)
+        return last.date.addingTimeInterval(TimeInterval(minutes * 60))
     }
+
+    static let retryMinutes = 5
 
     /// Tests are paused until the user agrees to Ookla's license in Settings.
     var needsOoklaLicense: Bool {

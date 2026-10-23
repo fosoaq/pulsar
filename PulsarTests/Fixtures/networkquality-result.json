@@ -1,0 +1,80 @@
+{
+  "base_rtt": 31.51053810119629,
+  "cli_options": [
+    "-c"
+  ],
+  "dl_bytes_transferred": 2083771363,
+  "dl_flows": 10,
+  "dl_phase_duration": 20.831308007240295,
+  "dl_phase_end": "2026-10-23 23:03:33.732",
+  "dl_phase_start": "2026-10-23 23:03:12.901",
+  "dl_throughput": 850168768,
+  "draft_version": 8,
+  "end_date": "2026-10-23 23:03:33.742",
+  "il_h2_req_resp": [
+    29.160022735595703,
+    29.194950103759766,
+    29.404998779296875
+  ],
+  "il_tcp_handshake_443": [
+    30,
+    30,
+    29
+  ],
+  "il_tls_handshake": [
+    33,
+    33,
+    33
+  ],
+  "interface_name": "en0",
+  "lud_foreign_h2_req_resp": [
+    29,
+    31,
+    31
+  ],
+  "lud_foreign_tcp_handshake_443": [
+    30,
+    30,
+    30
+  ],
+  "lud_foreign_tls_handshake": [
+    34,
+    37,
+    33
+  ],
+  "lud_self_h2_req_resp": [
+    72,
+    30,
+    141
+  ],
+  "os_version": "Version 27.0.1 (Build 26A434)",
+  "other": {
+    "ecn_values": {
+      "ecn_disabled": 457
+    },
+    "interface-type": {
+      "wired": 457
+    },
+    "l4s_enablement": {
+      "disabled": 457
+    },
+    "protocols_seen": {
+      "h2": 457
+    },
+    "proxy_state": {
+      "not_proxied": 457
+    },
+    "rat": {
+      "unknown": 457
+    }
+  },
+  "responsiveness": 754.467529296875,
+  "start_date": "2026-10-23 23:03:09.513",
+  "test_endpoint": "sesto4-edge-fx-006.aaplimg.com",
+  "ul_bytes_transferred": 1240989696,
+  "ul_flows": 16,
+  "ul_phase_duration": 20.831308007240295,
+  "ul_phase_end": "2026-10-23 23:03:33.732",
+  "ul_phase_start": "2026-10-23 23:03:12.901",
+  "ul_throughput": 703284352
+}

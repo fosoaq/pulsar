@@ -17,12 +17,17 @@ struct OoklaEngine: SpeedTestEngine {
             throw SpeedTestError(message: "Ookla speedtest is not installed. Install it with `brew install teamookla/speedtest/speedtest`.")
         }
         let (output, errorOutput, status) = try await runTool(path, arguments: ["--format=json", "--progress=no"] + (acceptLicense ? ["--accept-license", "--accept-gdpr"] : []))
+        return try Self.parse(output: output, errorOutput: errorOutput, status: status)
+    }
 
-        // The result is one JSON object per line; errors come as {"type":"log","level":"error",...}.
+    static func parse(output: Data, errorOutput: Data, status: Int32, date: Date = .now) throws -> SpeedTestResult {
+        // Normally one JSON object per line; errors come as {"type":"log","level":"error",...}.
+        // A single pretty-printed object is accepted too.
         let lines = String(decoding: output, as: UTF8.self).split(whereSeparator: \.isNewline)
-        let messages = lines.compactMap { try? JSONDecoder().decode(Message.self, from: Data($0.utf8)) }
+        let messages = (try? JSONDecoder().decode(Message.self, from: output)).map { [$0] }
+            ?? lines.compactMap { try? JSONDecoder().decode(Message.self, from: Data($0.utf8)) }
         if let report = messages.first(where: { $0.type == "result" }) {
-            return result(from: report)
+            return result(from: report, date: date)
         }
 
         let allText = String(decoding: output + errorOutput, as: UTF8.self)
@@ -35,11 +40,11 @@ struct OoklaEngine: SpeedTestEngine {
         throw SpeedTestError(message: "speedtest exited with status \(status): \(allText.trimmingCharacters(in: .whitespacesAndNewlines))")
     }
 
-    private func result(from report: Message) -> SpeedTestResult {
+    private static func result(from report: Message, date: Date) -> SpeedTestResult {
         let server = report.server.map { [$0.name, $0.location].compactMap { $0 }.joined(separator: ", ") }
         return SpeedTestResult(
-            date: .now,
-            engine: kind.rawValue,
+            date: date,
+            engine: SpeedTestEngineKind.ookla.rawValue,
             // Ookla reports bandwidth in bytes per second.
             downloadMbps: report.download?.bandwidth.map { $0 * 8 / 1_000_000 },
             uploadMbps: report.upload?.bandwidth.map { $0 * 8 / 1_000_000 },

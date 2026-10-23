@@ -6,7 +6,10 @@ struct NetworkQualityEngine: SpeedTestEngine {
 
     func run() async throws -> SpeedTestResult {
         let (output, errorOutput, status) = try await runTool("/usr/bin/networkQuality", arguments: ["-c", "-M", "60"])
+        return try Self.parse(output: output, errorOutput: errorOutput, status: status)
+    }
 
+    static func parse(output: Data, errorOutput: Data, status: Int32, date: Date = .now) throws -> SpeedTestResult {
         let decoder = JSONDecoder()
         decoder.keyDecodingStrategy = .convertFromSnakeCase
         guard let report = try? decoder.decode(Report.self, from: output) else {
@@ -21,8 +24,8 @@ struct NetworkQualityEngine: SpeedTestEngine {
         }
 
         return SpeedTestResult(
-            date: .now,
-            engine: kind.rawValue,
+            date: date,
+            engine: SpeedTestEngineKind.networkQuality.rawValue,
             downloadMbps: download / 1_000_000,
             uploadMbps: upload / 1_000_000,
             latencyMs: report.baseRtt,
