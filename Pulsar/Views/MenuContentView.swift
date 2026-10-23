@@ -107,7 +107,7 @@ struct MenuContentView: View {
         }
     }
 
-    private func metric(_ title: String, systemImage: String, value: String, unit: String?) -> some View {
+    private func metric(_ title: LocalizedStringKey, systemImage: String, value: String, unit: LocalizedStringKey?) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Label(title, systemImage: systemImage)
                 .font(.caption)
@@ -165,7 +165,7 @@ struct MenuContentView: View {
 
 /// A full-width row that highlights on hover, like a menu item.
 private struct MenuRow: View {
-    let title: String
+    let title: LocalizedStringKey
     let systemImage: String
     var detail: String?
     let action: () -> Void
@@ -173,7 +173,7 @@ private struct MenuRow: View {
     @State private var isHovered = false
     @Environment(\.isEnabled) private var isEnabled
 
-    init(_ title: String, systemImage: String, detail: String? = nil, action: @escaping () -> Void) {
+    init(_ title: LocalizedStringKey, systemImage: String, detail: String? = nil, action: @escaping () -> Void) {
         self.title = title
         self.systemImage = systemImage
         self.detail = detail

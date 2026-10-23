@@ -75,7 +75,7 @@ enum HistoryRange: CaseIterable, Identifiable {
 
     var id: Self { self }
 
-    var title: String {
+    var title: LocalizedStringKey {
         switch self {
         case .day: "24 hours"
         case .week: "7 days"

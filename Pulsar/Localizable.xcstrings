@@ -1,0 +1,1001 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "": {
+      "shouldTranslate": false
+    },
+    "%@ Mbps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%@ Мбит/с"
+          }
+        }
+      }
+    },
+    "%@.local is already used by another device on the network. Pick another name.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Адрес %@.local уже занят другим устройством в сети. Выберите другое имя."
+          }
+        }
+      }
+    },
+    "%lld days": {
+      "localizations": {
+        "ru": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld дня"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld дней"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld день"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld дня"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "%lld years": {
+      "localizations": {
+        "ru": {
+          "variations": {
+            "plural": {
+              "few": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld года"
+                }
+              },
+              "many": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld лет"
+                }
+              },
+              "one": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld год"
+                }
+              },
+              "other": {
+                "stringUnit": {
+                  "state": "translated",
+                  "value": "%lld года"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    ".local": {
+      "shouldTranslate": false
+    },
+    "0 turns a threshold off. Alerts always appear in Notification Center on this Mac.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "0 отключает порог. Уведомления всегда показываются и в Центре уведомлений на этом Mac."
+          }
+        }
+      }
+    },
+    "123456789": {
+      "shouldTranslate": false
+    },
+    "123456:ABC…": {
+      "shouldTranslate": false
+    },
+    "24 hours": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "24 часа"
+          }
+        }
+      }
+    },
+    "30 days": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "30 дней"
+          }
+        }
+      }
+    },
+    "7 days": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "7 дней"
+          }
+        }
+      }
+    },
+    "Accept the Speedtest license in Pulsar Settings.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Примите лицензию Speedtest в настройках Pulsar."
+          }
+        }
+      }
+    },
+    "Address": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Адрес"
+          }
+        }
+      }
+    },
+    "After a failed test Pulsar tries again in %lld minutes.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "После неудачного теста Pulsar повторит его через %lld мин."
+          }
+        }
+      }
+    },
+    "Bonjour is not available, so %@.local could not be published.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bonjour недоступен, поэтому адрес %@.local не опубликован."
+          }
+        }
+      }
+    },
+    "Bot token": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Токен бота"
+          }
+        }
+      }
+    },
+    "Built into macOS. Measures against Apple's servers, including responsiveness under load.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Встроен в macOS. Меряет до серверов Apple, включая отзывчивость под нагрузкой."
+          }
+        }
+      }
+    },
+    "Chat ID": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ID чата"
+          }
+        }
+      }
+    },
+    "Could not open the history database: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось открыть базу истории: %@"
+          }
+        }
+      }
+    },
+    "Could not publish %@.local (Bonjour error %d).": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось опубликовать %@.local (ошибка Bonjour %d)."
+          }
+        }
+      }
+    },
+    "Could not read the history: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось прочитать историю: %@"
+          }
+        }
+      }
+    },
+    "Could not save the result: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось сохранить результат: %@"
+          }
+        }
+      }
+    },
+    "Create a bot with @BotFather, send it any message, then find your chat ID with @userinfobot.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Создайте бота через @BotFather, напишите ему любое сообщение, а ID чата узнайте у @userinfobot."
+          }
+        }
+      }
+    },
+    "Dashboard": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Веб-панель"
+          }
+        }
+      }
+    },
+    "Dashboard could not start on port %lld: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не удалось запустить веб-панель на порту %lld: %@"
+          }
+        }
+      }
+    },
+    "Direction": {
+      "shouldTranslate": false
+    },
+    "Download": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузка"
+          }
+        }
+      }
+    },
+    "Download %@ Mbps, below %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Загрузка %@ Мбит/с, ниже %@"
+          }
+        }
+      }
+    },
+    "EULA": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Лицензионное соглашение"
+          }
+        }
+      }
+    },
+    "Engine": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Движок"
+          }
+        }
+      }
+    },
+    "Forever": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Всегда"
+          }
+        }
+      }
+    },
+    "General": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Общие"
+          }
+        }
+      }
+    },
+    "History": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История"
+          }
+        }
+      }
+    },
+    "History…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "История…"
+          }
+        }
+      }
+    },
+    "I accept the Speedtest license": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Я принимаю лицензию Speedtest"
+          }
+        }
+      }
+    },
+    "Jitter": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Джиттер"
+          }
+        }
+      }
+    },
+    "Keep history for": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Хранить историю"
+          }
+        }
+      }
+    },
+    "Keep the Mac awake for scheduled tests": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не давать Mac засыпать ради тестов"
+          }
+        }
+      }
+    },
+    "Last 24 hours": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "За последние 24 часа"
+          }
+        }
+      }
+    },
+    "Latency": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Задержка"
+          }
+        }
+      }
+    },
+    "Launch at login": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запускать при входе"
+          }
+        }
+      }
+    },
+    "Mbps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Мбит/с"
+          }
+        }
+      }
+    },
+    "Measured %@ ago": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Измерено %@ назад"
+          }
+        }
+      }
+    },
+    "Measures against the nearest Speedtest.net server.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Меряет до ближайшего сервера Speedtest.net."
+          }
+        }
+      }
+    },
+    "Next test %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Следующий тест через %@"
+          }
+        }
+      }
+    },
+    "No measurements in this range": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "За этот период замеров нет"
+          }
+        }
+      }
+    },
+    "No measurements yet.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Замеров пока нет."
+          }
+        }
+      }
+    },
+    "Not installed. Run: brew install teamookla/speedtest/speedtest": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Не установлен. Выполните: brew install teamookla/speedtest/speedtest"
+          }
+        }
+      }
+    },
+    "Notifications": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уведомления"
+          }
+        }
+      }
+    },
+    "Notifications from Pulsar reach you here.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Уведомления Pulsar приходят сюда."
+          }
+        }
+      }
+    },
+    "OK": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "OK"
+          }
+        }
+      }
+    },
+    "On devices that cannot open .local names: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Для устройств, которые не открывают адреса .local: %@"
+          }
+        }
+      }
+    },
+    "Ookla speedtest is not installed. Install it with `brew install teamookla/speedtest/speedtest`.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ookla speedtest не установлен. Установите: `brew install teamookla/speedtest/speedtest`."
+          }
+        }
+      }
+    },
+    "Open Dashboard": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Открыть веб-панель"
+          }
+        }
+      }
+    },
+    "Paused": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "На паузе"
+          }
+        }
+      }
+    },
+    "Personal, non-commercial use only. Pulsar passes --accept-license and --accept-gdpr to the CLI on your behalf.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Только для личного некоммерческого использования. Pulsar передаёт утилите --accept-license и --accept-gdpr от вашего имени."
+          }
+        }
+      }
+    },
+    "Port": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Порт"
+          }
+        }
+      }
+    },
+    "Press Return to apply the address. Port 80 drops the port from the address. Leave the address empty to use this Mac's name.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Нажмите Return, чтобы применить адрес. С портом 80 порт не нужно указывать в адресе. Пустое поле — использовать имя этого Mac."
+          }
+        }
+      }
+    },
+    "Privacy Policy": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Политика конфиденциальности"
+          }
+        }
+      }
+    },
+    "Prometheus metrics: %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Метрики Prometheus: %@"
+          }
+        }
+      }
+    },
+    "Pulsar": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pulsar"
+          }
+        }
+      }
+    },
+    "Pulsar test notification": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тестовое уведомление Pulsar"
+          }
+        }
+      }
+    },
+    "Quit Pulsar": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Завершить Pulsar"
+          }
+        }
+      }
+    },
+    "Range": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Период"
+          }
+        }
+      }
+    },
+    "Receives every result as JSON, with an alert attached when one applies.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Получает каждый результат в JSON, вместе с предупреждением, если оно есть."
+          }
+        }
+      }
+    },
+    "Responsiveness": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отзывчивость"
+          }
+        }
+      }
+    },
+    "Review License…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Посмотреть лицензию…"
+          }
+        }
+      }
+    },
+    "Run Test Now": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запустить тест"
+          }
+        }
+      }
+    },
+    "Run a test every": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Запускать тест каждые"
+          }
+        }
+      }
+    },
+    "Send Test Notification": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отправить тестовое уведомление"
+          }
+        }
+      }
+    },
+    "Serve a dashboard on the local network": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Веб-панель в локальной сети"
+          }
+        }
+      }
+    },
+    "Settings…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Настройки…"
+          }
+        }
+      }
+    },
+    "Slow connection": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Медленное соединение"
+          }
+        }
+      }
+    },
+    "Speed test failed": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тест скорости не прошёл"
+          }
+        }
+      }
+    },
+    "Speedtest by Ookla asks you to accept its license before the first test.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Перед первым тестом Speedtest by Ookla просит принять лицензию."
+          }
+        }
+      }
+    },
+    "Status": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Статус"
+          }
+        }
+      }
+    },
+    "Stops idle sleep while Pulsar runs. The display still turns off.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mac не уходит в сон, пока работает Pulsar. Дисплей при этом гаснет."
+          }
+        }
+      }
+    },
+    "Subscribe to the same topic in the ntfy app on your phone.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Подпишитесь на эту же тему в приложении ntfy на телефоне."
+          }
+        }
+      }
+    },
+    "Telegram": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Telegram"
+          }
+        }
+      }
+    },
+    "Terms of Use": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Условия использования"
+          }
+        }
+      }
+    },
+    "Testing": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Тесты"
+          }
+        }
+      }
+    },
+    "Testing…": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Идёт тест…"
+          }
+        }
+      }
+    },
+    "The bot token is not valid.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неверный токен бота."
+          }
+        }
+      }
+    },
+    "The webhook URL is not valid.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Неверный адрес webhook."
+          }
+        }
+      }
+    },
+    "Time": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Время"
+          }
+        }
+      }
+    },
+    "Topic URL": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Адрес темы"
+          }
+        }
+      }
+    },
+    "URL": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Адрес"
+          }
+        }
+      }
+    },
+    "Upload": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отдача"
+          }
+        }
+      }
+    },
+    "Upload %@ Mbps, below %@": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Отдача %@ Мбит/с, ниже %@"
+          }
+        }
+      }
+    },
+    "Use a topic URL such as https://ntfy.sh/my-topic.": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Укажите адрес темы, например https://ntfy.sh/my-topic."
+          }
+        }
+      }
+    },
+    "Webhook": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Webhook"
+          }
+        }
+      }
+    },
+    "When a test fails": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда тест не прошёл"
+          }
+        }
+      }
+    },
+    "When download is below, Mbps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда загрузка ниже, Мбит/с"
+          }
+        }
+      }
+    },
+    "When to notify": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда уведомлять"
+          }
+        }
+      }
+    },
+    "When upload is below, Mbps": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Когда отдача ниже, Мбит/с"
+          }
+        }
+      }
+    },
+    "https://example.com/hook": {
+      "shouldTranslate": false
+    },
+    "https://ntfy.sh/my-pulsar": {
+      "shouldTranslate": false
+    },
+    "ntfy": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ntfy"
+          }
+        }
+      }
+    },
+    "pulsar": {
+      "shouldTranslate": false
+    },
+    "—": {
+      "shouldTranslate": false
+    }
+  },
+  "version": "1.0"
+}

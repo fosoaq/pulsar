@@ -30,7 +30,7 @@ private struct TestingSettings: View {
                         Text(kind.title).tag(kind)
                     }
                 }
-                Caption(engineNote)
+                Caption(verbatim: engineNote)
 
                 if model.settings.engine == .ookla {
                     Toggle(isOn: $model.settings.acceptedOoklaLicense) {
@@ -262,7 +262,7 @@ private struct Caption: View {
         text = Text(key)
     }
 
-    init(_ string: String) {
+    init(verbatim string: String) {
         text = Text(string)
     }
 

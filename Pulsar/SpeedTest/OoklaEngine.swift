@@ -14,7 +14,7 @@ struct OoklaEngine: SpeedTestEngine {
 
     func run() async throws -> SpeedTestResult {
         guard let path = Self.executablePath else {
-            throw SpeedTestError(message: "Ookla speedtest is not installed. Install it with `brew install teamookla/speedtest/speedtest`.")
+            throw SpeedTestError(message: String(localized: "Ookla speedtest is not installed. Install it with `brew install teamookla/speedtest/speedtest`."))
         }
         let (output, errorOutput, status) = try await runTool(path, arguments: ["--format=json", "--progress=no"] + (acceptLicense ? ["--accept-license", "--accept-gdpr"] : []))
         return try Self.parse(output: output, errorOutput: errorOutput, status: status)
@@ -32,7 +32,7 @@ struct OoklaEngine: SpeedTestEngine {
 
         let allText = String(decoding: output + errorOutput, as: UTF8.self)
         if allText.contains("--accept-license") {
-            throw SpeedTestError(message: "Accept the Speedtest license in Pulsar Settings.")
+            throw SpeedTestError(message: String(localized: "Accept the Speedtest license in Pulsar Settings."))
         }
         if let logged = messages.last(where: { $0.level == "error" })?.message {
             throw SpeedTestError(message: "speedtest: \(logged)")

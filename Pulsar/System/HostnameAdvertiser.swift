@@ -21,7 +21,7 @@ final class HostnameAdvertiser {
         guard inet_pton(AF_INET, address.ip, &ipv4) == 1 else { return }
         var ref: DNSServiceRef?
         guard DNSServiceCreateConnection(&ref) == DNSServiceErrorType(kDNSServiceErr_NoError), let ref else {
-            onError?("Bonjour is not available, so \(name).local could not be published.")
+            onError?(String(localized: "Bonjour is not available, so \(name).local could not be published."))
             return
         }
         DNSServiceSetDispatchQueue(ref, .main)
@@ -66,12 +66,12 @@ final class HostnameAdvertiser {
     }
 
     private func failed(_ error: DNSServiceErrorType, name: String? = nil) {
-        let name = name ?? published?.name ?? "The name"
+        let name = name ?? published?.name ?? ""
         stop()
         if error == DNSServiceErrorType(kDNSServiceErr_NameConflict) {
-            onError?("\(name).local is already used by another device on the network. Pick another name.")
+            onError?(String(localized: "\(name).local is already used by another device on the network. Pick another name."))
         } else {
-            onError?("Could not publish \(name).local (Bonjour error \(error)).")
+            onError?(String(localized: "Could not publish \(name).local (Bonjour error \(error))."))
         }
     }
 }

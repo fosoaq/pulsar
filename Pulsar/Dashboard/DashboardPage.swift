@@ -45,26 +45,44 @@ enum DashboardPage {
     <body>
     <main>
     <header>
-      <div><h1>Pulsar</h1><div class="sub" id="updated">Loading…</div></div>
+      <div><h1>Pulsar</h1><div class="sub" id="updated" data-i18n>Loading…</div></div>
       <div class="controls">
-        <button class="btn primary" id="run">Run test</button>
+        <button class="btn primary" id="run" data-i18n>Run test</button>
         <a class="btn" id="csv" href="/api/results.csv?days=7">CSV</a>
         <div class="ranges" id="ranges"></div>
       </div>
     </header>
     <section class="tiles" id="tiles"></section>
     <section class="card chart">
-      <div class="legend"><span><i style="background:var(--down)"></i>Download</span><span><i style="background:var(--up)"></i>Upload</span></div>
+      <div class="legend"><span><i style="background:var(--down)"></i><span data-i18n>Download</span></span><span><i style="background:var(--up)"></i><span data-i18n>Upload</span></span></div>
       <svg id="chart" role="img" aria-label="Download and upload speed over time"></svg>
     </section>
     <section class="card table-wrap">
       <table>
-        <thead><tr><th>Time</th><th>Download</th><th>Upload</th><th>Latency</th><th>Jitter</th><th>Responsiveness</th><th>Server</th><th>Status</th></tr></thead>
+        <thead><tr><th data-i18n>Time</th><th data-i18n>Download</th><th data-i18n>Upload</th><th data-i18n>Latency</th><th data-i18n>Jitter</th><th data-i18n>Responsiveness</th><th data-i18n>Server</th><th data-i18n>Status</th></tr></thead>
         <tbody id="rows"></tbody>
       </table>
     </section>
     </main>
     <script>
+    // Russian when the browser prefers it; English otherwise.
+    const RU = {
+      "Loading…": "Загрузка…", "Run test": "Запустить тест", "Testing…": "Идёт тест…",
+      "Download": "Загрузка", "Upload": "Отдача", "Latency": "Задержка", "Jitter": "Джиттер",
+      "Responsiveness": "Отзывчивость", "Server": "Сервер", "Status": "Статус", "Time": "Время",
+      "Last test": "Последний тест", "Tests": "Тестов", "avg": "в среднем", "failed": "с ошибкой",
+      "all succeeded": "все успешные", "Mbps": "Мбит/с", "ms": "мс", "No data": "Нет данных",
+      "No tests in this range yet.": "За этот период тестов нет.", "Updated": "Обновлено",
+      "Next test": "Следующий тест в", "Tests paused": "Тесты на паузе",
+      "Could not load results": "Не удалось загрузить результаты",
+      "Accept the Speedtest license in Pulsar's settings first": "Сначала примите лицензию Speedtest в настройках Pulsar",
+      "24h": "24ч", "7d": "7д", "30d": "30д", "90d": "90д",
+    };
+    const L10N = /^ru\b/i.test((navigator.languages || [])[0] || navigator.language || "") ? RU : {};
+    const t = s => L10N[s] || s;
+    if (L10N === RU) document.documentElement.lang = "ru";
+    document.querySelectorAll("[data-i18n]").forEach(el => { el.textContent = t(el.textContent) });
+
     const RANGES = [["24h", 1], ["7d", 7], ["30d", 30], ["90d", 90]];
     let days = 7;
     try { days = Number(localStorage.getItem("days")) || 7 } catch (e) {}
@@ -73,12 +91,12 @@ enum DashboardPage {
     const $ = id => document.getElementById(id);
     const esc = s => String(s).replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
     const mbps = v => v == null ? "—" : (v >= 100 ? v.toFixed(0) : v.toFixed(1));
-    const ms = v => v == null ? "—" : Math.round(v) + " ms";
+    const ms = v => v == null ? "—" : Math.round(v) + " " + t("ms");
     const fmtTime = d => d.toLocaleString([], {month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"});
     const avg = xs => { xs = xs.filter(v => v != null); return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null };
 
     function renderRanges() {
-      $("ranges").innerHTML = RANGES.map(([label, d]) => `<button aria-pressed="${d === days}" data-days="${d}">${label}</button>`).join("");
+      $("ranges").innerHTML = RANGES.map(([label, d]) => `<button aria-pressed="${d === days}" data-days="${d}">${t(label)}</button>`).join("");
     }
 
     $("ranges").addEventListener("click", e => {
@@ -96,11 +114,11 @@ enum DashboardPage {
         const status = await (await fetch("/api/status")).json();
         const button = $("run");
         button.disabled = status.running || status.paused;
-        button.textContent = status.running ? "Testing…" : "Run test";
-        button.title = status.paused ? "Accept the Speedtest license in Pulsar's settings first" : "";
+        button.textContent = t(status.running ? "Testing…" : "Run test");
+        button.title = status.paused ? t("Accept the Speedtest license in Pulsar's settings first") : "";
         if (wasRunning && !status.running) load();
         wasRunning = status.running;
-        $("updated").dataset.next = status.paused ? "Tests paused" : `Next test ${new Date(status.nextRun).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`;
+        $("updated").dataset.next = status.paused ? t("Tests paused") : `${t("Next test")} ${new Date(status.nextRun).toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`;
         showUpdated();
         if (status.running) setTimeout(refreshStatus, 3000);
       } catch (e) {}
@@ -124,10 +142,10 @@ enum DashboardPage {
         data = (await response.json()).map(r => ({...r, date: new Date(r.date)}));
         render();
         $("csv").href = `/api/results.csv?days=${days}`;
-        $("updated").dataset.updated = `Updated ${new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`;
+        $("updated").dataset.updated = `${t("Updated")} ${new Date().toLocaleTimeString([], {hour: "2-digit", minute: "2-digit"})}`;
         showUpdated();
       } catch (e) {
-        $("updated").textContent = `Could not load results: ${e.message}`;
+        $("updated").textContent = `${t("Could not load results")}: ${e.message}`;
       }
     }
 
@@ -138,11 +156,11 @@ enum DashboardPage {
       const tile = (label, value, unit, hint) =>
         `<div class="card tile"><div class="label">${label}</div><div class="value">${value}${unit ? `<small>${unit}</small>` : ""}</div><div class="hint">${hint}</div></div>`;
       $("tiles").innerHTML = [
-        tile("Download", mbps(last?.downloadMbps), "Mbps", `avg ${mbps(avg(ok.map(r => r.downloadMbps)))}`),
-        tile("Upload", mbps(last?.uploadMbps), "Mbps", `avg ${mbps(avg(ok.map(r => r.uploadMbps)))}`),
-        tile("Latency", last?.latencyMs != null ? Math.round(last.latencyMs) : "—", "ms", `avg ${ms(avg(ok.map(r => r.latencyMs)))}`),
-        tile("Last test", last ? fmtTime(last.date) : "—", "", last ? esc(last.engine) : ""),
-        tile("Tests", data.length, "", failed ? `${failed} failed` : "all succeeded"),
+        tile(t("Download"), mbps(last?.downloadMbps), t("Mbps"), `${t("avg")} ${mbps(avg(ok.map(r => r.downloadMbps)))}`),
+        tile(t("Upload"), mbps(last?.uploadMbps), t("Mbps"), `${t("avg")} ${mbps(avg(ok.map(r => r.uploadMbps)))}`),
+        tile(t("Latency"), last?.latencyMs != null ? Math.round(last.latencyMs) : "—", t("ms"), `${t("avg")} ${ms(avg(ok.map(r => r.latencyMs)))}`),
+        tile(t("Last test"), last ? fmtTime(last.date) : "—", "", last ? esc(last.engine) : ""),
+        tile(t("Tests"), data.length, "", failed ? `${failed} ${t("failed")}` : t("all succeeded")),
       ].join("");
 
       drawChart();
@@ -158,7 +176,7 @@ enum DashboardPage {
             <td>${r.server ? esc(r.server) : "—"}</td>
             ${r.error ? `<td class="err">${esc(r.error)}</td>` : "<td>OK</td>"}
           </tr>`).join("")
-        : `<tr><td colspan="8" class="empty">No tests in this range yet.</td></tr>`;
+        : `<tr><td colspan="8" class="empty">${t("No tests in this range yet.")}</td></tr>`;
     }
 
     function drawChart() {
@@ -167,7 +185,7 @@ enum DashboardPage {
       const W = svg.clientWidth || 800, H = 260, L = 44, R = 12, T = 10, B = 26;
       svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
       if (!points.length) {
-        svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">No data</text>`;
+        svg.innerHTML = `<text x="${W / 2}" y="${H / 2}" text-anchor="middle">${t("No data")}</text>`;
         return;
       }
       const max = Math.max(1, ...points.flatMap(p => [p.downloadMbps || 0, p.uploadMbps || 0])) * 1.1;
@@ -190,7 +208,7 @@ enum DashboardPage {
         const pts = points.filter(p => p[key] != null);
         const line = `<polyline points="${pts.map(p => `${x(+p.date).toFixed(1)},${y(p[key]).toFixed(1)}`).join(" ")}" fill="none" style="stroke:${color}" stroke-width="2" stroke-linejoin="round"/>`;
         const dots = pts.length <= 150
-          ? pts.map(p => `<circle cx="${x(+p.date)}" cy="${y(p[key])}" r="3" style="fill:${color}"><title>${fmtTime(p.date)}: ${mbps(p[key])} Mbps</title></circle>`).join("")
+          ? pts.map(p => `<circle cx="${x(+p.date)}" cy="${y(p[key])}" r="3" style="fill:${color}"><title>${fmtTime(p.date)}: ${mbps(p[key])} ${t("Mbps")}</title></circle>`).join("")
           : "";
         return line + dots;
       };
