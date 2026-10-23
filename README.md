@@ -28,7 +28,7 @@ on Ethernet.
 | `GET /api/status` | Whether a test is running and when the next one is due |
 | `POST /api/run?server=ID` | Starts a test, optionally on an Ookla server; needs the header `X-Pulsar-Run: 1` |
 | `GET /api/servers` | Nearby Ookla servers |
-| `GET /metrics` | Prometheus metrics for the last test |
+| `GET /metrics` | Prometheus metrics for the last test, including ping during download and upload |
 
 Requests must use `localhost`, a `.local` name or an IP address as the host.
 

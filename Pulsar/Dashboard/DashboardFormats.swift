@@ -3,7 +3,7 @@ import Foundation
 /// The non-HTML responses of the dashboard server.
 enum DashboardFormats {
     static func csv(_ results: [SpeedTestResult]) -> String {
-        let header = "date,engine,download_mbps,upload_mbps,latency_ms,jitter_ms,packet_loss_percent,responsiveness_rpm,interface,server,isp,result_url,error"
+        let header = "date,engine,download_mbps,upload_mbps,latency_ms,jitter_ms,download_latency_ms,upload_latency_ms,packet_loss_percent,responsiveness_rpm,interface,server,isp,result_url,error"
         let dateFormat = Date.ISO8601FormatStyle()
         let rows = results.map { result in
             [
@@ -13,6 +13,8 @@ enum DashboardFormats {
                 number(result.uploadMbps),
                 number(result.latencyMs),
                 number(result.jitterMs),
+                number(result.downloadLatencyMs),
+                number(result.uploadLatencyMs),
                 number(result.packetLossPercent),
                 number(result.responsivenessRPM),
                 result.interfaceName ?? "",
@@ -36,7 +38,9 @@ enum DashboardFormats {
         }
         gauge("pulsar_download_mbps", "Download speed of the last successful test.", lastSuccess?.downloadMbps)
         gauge("pulsar_upload_mbps", "Upload speed of the last successful test.", lastSuccess?.uploadMbps)
-        gauge("pulsar_latency_ms", "Idle latency of the last successful test.", lastSuccess?.latencyMs)
+        gauge("pulsar_latency_ms", "Idle ping of the last successful test.", lastSuccess?.latencyMs)
+        gauge("pulsar_download_latency_ms", "Ping during the download of the last successful test.", lastSuccess?.downloadLatencyMs)
+        gauge("pulsar_upload_latency_ms", "Ping during the upload of the last successful test.", lastSuccess?.uploadLatencyMs)
         gauge("pulsar_jitter_ms", "Jitter of the last successful test.", lastSuccess?.jitterMs)
         gauge("pulsar_packet_loss_percent", "Packet loss of the last successful test.", lastSuccess?.packetLossPercent)
         gauge("pulsar_responsiveness_rpm", "Responsiveness under load of the last successful test.", lastSuccess?.responsivenessRPM)

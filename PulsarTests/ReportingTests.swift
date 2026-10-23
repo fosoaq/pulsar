@@ -41,7 +41,7 @@ struct DashboardFormatsTests {
         let lines = DashboardFormats.csv([row]).components(separatedBy: "\r\n")
 
         #expect(lines[0].hasPrefix("date,engine,download_mbps"))
-        #expect(lines[1].hasPrefix("2027-01-15T08:00:00Z,ookla,500.0,400.0,4.0,0.5,0.0,,"))
+        #expect(lines[1].hasPrefix("2027-01-15T08:00:00Z,ookla,500.0,400.0,4.0,0.5,,,0.0,,"))
         #expect(lines[1].contains(#""'=HYPERLINK(""x"")""#))
         #expect(lines[1].hasSuffix(#""said ""no"", twice""#))
         #expect(lines[2].isEmpty)

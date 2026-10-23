@@ -103,7 +103,7 @@ struct MenuContentView: View {
                     metric("Upload", systemImage: "arrow.up", value: Format.mbps(result.uploadMbps), unit: "Mbps")
                 }
                 GridRow {
-                    metric("Latency", systemImage: "timer", value: Format.milliseconds(result.latencyMs), unit: nil)
+                    metric("Ping", systemImage: "timer", value: Format.milliseconds(result.latencyMs), unit: nil)
                     if let rpm = result.responsivenessRPM {
                         metric("Responsiveness", systemImage: "waveform.path.ecg", value: Format.rpm(rpm), unit: nil)
                     } else {

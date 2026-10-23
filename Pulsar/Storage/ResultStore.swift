@@ -36,6 +36,12 @@ final class ResultStore: Sendable {
                 t.column("error", .text)
             }
         }
+        migrator.registerMigration("v2-loaded-latency") { db in
+            try db.alter(table: SpeedTestResult.databaseTableName) { t in
+                t.add(column: "downloadLatencyMs", .double)
+                t.add(column: "uploadLatencyMs", .double)
+            }
+        }
         return migrator
     }
 

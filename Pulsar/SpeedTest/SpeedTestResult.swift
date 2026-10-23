@@ -8,8 +8,12 @@ struct SpeedTestResult: Codable, Identifiable, Sendable, FetchableRecord, Mutabl
     var engine: String
     var downloadMbps: Double?
     var uploadMbps: Double?
+    /// Idle ping.
     var latencyMs: Double?
     var jitterMs: Double?
+    /// Ping while the connection is busy downloading or uploading (Ookla only).
+    var downloadLatencyMs: Double?
+    var uploadLatencyMs: Double?
     var packetLossPercent: Double?
     var responsivenessRPM: Double?
     var interfaceName: String?

@@ -427,16 +427,6 @@
         }
       }
     },
-    "Latency": {
-      "localizations": {
-        "ru": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Задержка"
-          }
-        }
-      }
-    },
     "Launch at login": {
       "localizations": {
         "ru": {
@@ -593,6 +583,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Только для личного некоммерческого использования. Pulsar передаёт утилите --accept-license и --accept-gdpr от вашего имени."
+          }
+        }
+      }
+    },
+    "Ping": {
+      "localizations": {
+        "ru": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Пинг"
           }
         }
       }

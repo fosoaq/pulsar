@@ -47,7 +47,7 @@ struct HistoryView: View {
                     Text(result.uploadMbps.map { "\(Format.mbps($0)) Mbps" } ?? "—")
                         .monospacedDigit()
                 }
-                TableColumn("Latency") { result in
+                TableColumn("Ping") { result in
                     Text(Format.milliseconds(result.latencyMs))
                         .monospacedDigit()
                 }

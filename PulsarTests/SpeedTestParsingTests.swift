@@ -50,6 +50,8 @@ struct OoklaParsingTests {
         #expect(abs(result.uploadMbps! - 108_528_966 * 8 / 1_000_000) < 0.0001)
         #expect(result.latencyMs == 0.857)
         #expect(result.jitterMs == 0.081)
+        #expect(result.downloadLatencyMs == 1.803)
+        #expect(result.uploadLatencyMs == 1.558)
         #expect(result.packetLossPercent == 0)
         #expect(result.isp == "Example ISP")
         #expect(result.server == "Example Server, Example City")

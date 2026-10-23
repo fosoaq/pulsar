@@ -79,6 +79,8 @@ struct OoklaEngine: SpeedTestEngine {
             uploadMbps: report.upload?.bandwidth.map { $0 * 8 / 1_000_000 },
             latencyMs: report.ping?.latency,
             jitterMs: report.ping?.jitter,
+            downloadLatencyMs: report.download?.latency?.iqm,
+            uploadLatencyMs: report.upload?.latency?.iqm,
             packetLossPercent: report.packetLoss,
             interfaceName: report.interface?.name,
             server: server,
@@ -101,7 +103,12 @@ struct OoklaEngine: SpeedTestEngine {
         let result: Link?
 
         struct Ping: Decodable { let latency: Double?; let jitter: Double? }
-        struct Transfer: Decodable { let bandwidth: Double? }
+        struct Transfer: Decodable {
+            let bandwidth: Double?
+            /// Ping during the transfer; `iqm` is the interquartile mean, which ignores outliers.
+            let latency: Latency?
+        }
+        struct Latency: Decodable { let iqm: Double? }
         struct Interface: Decodable { let name: String? }
         struct Server: Decodable { let name: String?; let location: String? }
         struct Link: Decodable { let url: String? }

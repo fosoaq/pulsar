@@ -13,8 +13,10 @@ enum DashboardPage {
     @media (prefers-color-scheme:dark){:root{--bg:#0e0e10;--text:#ededef;--muted:#8b8b93;--faint:#5c5c64;--rule:#1d1d21;--accent:#6ea8fe;--second:#8b8b93;--bad:#f87171;color-scheme:dark}}
     *{box-sizing:border-box}
     body{margin:0;background:var(--bg);color:var(--text);font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
-    main{max-width:1080px;margin:0 auto;padding:64px 32px 80px}
-    @media (max-width:640px){main{padding:32px 20px 56px}}
+    /* A column as tall as the window, so the footer sits at the bottom of short pages. */
+    main{max-width:1080px;min-height:100vh;min-height:100dvh;margin:0 auto;padding:64px 32px 48px;display:flex;flex-direction:column}
+    main>section{width:100%}
+    @media (max-width:640px){main{padding:32px 20px 32px}}
     a{color:inherit}
     button,select{font:inherit;color:inherit}
 
@@ -46,7 +48,8 @@ enum DashboardPage {
     .section-head{display:flex;flex-wrap:wrap;gap:8px 24px;align-items:baseline;justify-content:space-between;margin:0 0 20px}
     h2{font-size:17px;font-weight:600;letter-spacing:-.01em;margin:0}
     .legend{display:flex;gap:18px;color:var(--muted);font-size:13px}
-    .legend span::before{content:"";display:inline-block;width:12px;height:2px;border-radius:1px;background:var(--c);vertical-align:middle;margin-right:7px}
+    .legend span::before{content:"";display:inline-block;width:12px;height:0;border-top:2px solid var(--c);vertical-align:middle;margin-right:7px}
+    .legend span.dashed::before{border-top-style:dashed}
     .chart{position:relative;margin-bottom:80px}
     svg{display:block;width:100%;touch-action:pan-y;overflow:visible}
     svg text{fill:var(--faint);font-size:11px;font-variant-numeric:tabular-nums}
@@ -76,7 +79,7 @@ enum DashboardPage {
     a.muted{text-decoration:none}
     a.muted:hover{color:var(--text)}
 
-    footer{margin-top:96px;color:var(--faint);font-size:13px;display:flex;flex-wrap:wrap;gap:6px 18px}
+    footer{margin-top:auto;padding-top:96px;color:var(--faint);font-size:13px;display:flex;flex-wrap:wrap;gap:6px 18px}
     footer a{text-decoration:none}
     footer a:hover{color:var(--text)}
     [hidden]{display:none!important}
@@ -142,7 +145,8 @@ enum DashboardPage {
     const RU = {
       "Internet speed monitor": "Мониторинг скорости интернета", "Internet speed on": "Скорость интернета на",
       "Run test": "Запустить тест", "Testing…": "Идёт тест…", "Overview": "Обзор", "Results": "Результаты", "Statistics": "Статистика",
-      "Download": "Загрузка", "Upload": "Отдача", "Latency": "Задержка", "Jitter": "Джиттер", "Loss": "Потери",
+      "Download": "Загрузка", "Upload": "Отдача", "Ping": "Пинг", "Jitter": "Джиттер", "Loaded ping": "Пинг под нагрузкой", "under load": "под нагрузкой",
+      "Ping during download": "Пинг при загрузке", "Ping during upload": "Пинг при отдаче", "Loss": "Потери",
       "Server": "Сервер", "Time": "Время", "Engine": "Движок", "Speed": "Скорость",
       "avg": "в среднем", "Mbps": "Мбит/с", "ms": "мс", "No data": "Нет данных",
       "No tests in this range yet.": "За этот период тестов нет.", "next test at": "следующий тест в",
@@ -165,7 +169,7 @@ enum DashboardPage {
     const RANGES = [["24h", 1], ["7d", 7], ["30d", 30], ["90d", 90]];
     const KINDS = {
       speed: {label: "Speed", unit: "Mbps", series: [["downloadMbps", "Download", "--accent"], ["uploadMbps", "Upload", "--second"]]},
-      latency: {label: "Latency", unit: "ms", series: [["latencyMs", "Latency", "--accent"], ["jitterMs", "Jitter", "--second"]]},
+      ping: {label: "Ping", unit: "ms", series: [["latencyMs", "Ping", "--accent"], ["downloadLatencyMs", "Ping during download", "--second"], ["uploadLatencyMs", "Ping during upload", "--second", true]]},
     };
     const ENGINES = {ookla: "Ookla", networkQuality: "networkQuality"};
     const TABS = ["overview", "results", "statistics"];
@@ -220,7 +224,7 @@ enum DashboardPage {
       options("ranges", RANGES, days, "days");
       options("kinds", Object.entries(KINDS).map(([key, k]) => [k.label, key]), kind, "kind");
       options("filters", [["All", "all"], ["Failures", "failures"]], failuresOnly ? "failures" : "all", "filter");
-      $("legend").innerHTML = KINDS[kind].series.map(([, label, color]) => `<span style="--c:var(${color})">${t(label)}</span>`).join("");
+      $("legend").innerHTML = KINDS[kind].series.map(([, label, color, dashed]) => `<span style="--c:var(${color})"${dashed ? ' class="dashed"' : ""}>${t(label)}</span>`).join("");
     }
     function onOption(container, handle) {
       $(container).addEventListener("click", e => { const b = e.target.closest("button"); if (b) handle(b.dataset) });
@@ -291,11 +295,14 @@ enum DashboardPage {
       const last = ok[0];
       // Averages use the latest engine only: the two engines measure against different servers.
       const same = ok.filter(r => r.engine === last?.engine);
-      const metric = (label, key, unit) =>
+      const metric = (label, key, unit, note) =>
         `<div class="metric"><div class="label">${t(label)}</div><div class="value">${num(last?.[key])}<small>${t(unit)}</small></div>` +
-        `<div class="note">${same.length > 1 ? `${t("avg")} ${num(mean(values(same, key)))}` : "&nbsp;"}</div></div>`;
+        `<div class="note">${note ?? (same.length > 1 ? `${t("avg")} ${num(mean(values(same, key)))}` : "&nbsp;")}</div></div>`;
+      const loaded = last?.downloadLatencyMs != null || last?.uploadLatencyMs != null
+        ? `${num(last.downloadLatencyMs)} / ${num(last.uploadLatencyMs)} ${t("under load")}`
+        : undefined;
       $("metrics").innerHTML = metric("Download", "downloadMbps", "Mbps") + metric("Upload", "uploadMbps", "Mbps") +
-        metric("Latency", "latencyMs", "ms") + (last?.jitterMs != null ? metric("Jitter", "jitterMs", "ms") : "");
+        metric("Ping", "latencyMs", "ms", loaded) + (last?.jitterMs != null ? metric("Jitter", "jitterMs", "ms") : "");
       $("last").textContent = last
         ? `${t("Last test")} ${ago(last.date)} · ${[ENGINES[last.engine] || last.engine, last.server].filter(Boolean).join(" · ")}`
         : t("No tests in this range yet.");
@@ -305,13 +312,13 @@ enum DashboardPage {
 
     function table(rows, full) {
       if (!rows.length) return empty;
-      const head = `<thead><tr><th>${t("Time")}</th><th class="num">${t("Download")}</th><th class="num">${t("Upload")}</th><th class="num">${t("Latency")}</th>` +
-        (full ? `<th class="num">${t("Jitter")}</th><th class="num">${t("Loss")}</th>` : "") + `<th>${t("Server")}</th>${full ? `<th>${t("Engine")}</th>` : ""}</tr></thead>`;
+      const head = `<thead><tr><th>${t("Time")}</th><th class="num">${t("Download")}</th><th class="num">${t("Upload")}</th><th class="num">${t("Ping")}</th>` +
+        (full ? `<th class="num">${t("Jitter")}</th><th class="num">${t("Loaded ping")}</th><th class="num">${t("Loss")}</th>` : "") + `<th>${t("Server")}</th>${full ? `<th>${t("Engine")}</th>` : ""}</tr></thead>`;
       const body = rows.map(r => {
         const time = r.resultURL ? `<a href="${esc(r.resultURL)}" target="_blank" rel="noopener">${fmtTime(r.date)}</a>` : fmtTime(r.date);
-        if (r.error) return `<tr><td>${time}</td><td class="err" colspan="${full ? 7 : 4}">${esc(r.error)}</td></tr>`;
+        if (r.error) return `<tr><td>${time}</td><td class="err" colspan="${full ? 8 : 4}">${esc(r.error)}</td></tr>`;
         return `<tr><td>${time}</td><td class="num">${num(r.downloadMbps)}</td><td class="num">${num(r.uploadMbps)}</td><td class="num">${num(r.latencyMs)}</td>` +
-          (full ? `<td class="num">${num(r.jitterMs)}</td><td class="num">${r.packetLossPercent != null ? num(r.packetLossPercent) + "%" : "—"}</td>` : "") +
+          (full ? `<td class="num">${num(r.jitterMs)}</td><td class="num">${r.downloadLatencyMs != null || r.uploadLatencyMs != null ? `${num(r.downloadLatencyMs)} / ${num(r.uploadLatencyMs)}` : "—"}</td><td class="num">${r.packetLossPercent != null ? num(r.packetLossPercent) + "%" : "—"}</td>` : "") +
           `<td class="wrap dim">${r.server ? esc(r.server) : "—"}</td>${full ? `<td class="dim">${esc(ENGINES[r.engine] || r.engine)}</td>` : ""}</tr>`;
       }).join("");
       return head + `<tbody>${body}</tbody>`;
@@ -357,7 +364,8 @@ enum DashboardPage {
       };
       $("summary").innerHTML = ok.length
         ? `<thead><tr><th></th><th class="num">${t("Average")}</th><th class="num">${t("Median")}</th><th class="num">${t("Lowest")}</th><th class="num">${t("Highest")}</th><th></th></tr></thead><tbody>` +
-          row("Download", "downloadMbps", "Mbps") + row("Upload", "uploadMbps", "Mbps") + row("Latency", "latencyMs", "ms") + row("Jitter", "jitterMs", "ms") + "</tbody>"
+          row("Download", "downloadMbps", "Mbps") + row("Upload", "uploadMbps", "Mbps") + row("Ping", "latencyMs", "ms") + row("Jitter", "jitterMs", "ms") +
+          (values(same, "downloadLatencyMs").length ? row("Ping during download", "downloadLatencyMs", "ms") + row("Ping during upload", "uploadLatencyMs", "ms") : "") + "</tbody>"
         : empty;
 
       drawHours(hours, dip);
@@ -370,7 +378,7 @@ enum DashboardPage {
       }
       const servers = [...groups.entries()].sort((a, b) => b[1].length - a[1].length);
       $("servers").innerHTML = servers.length
-        ? `<thead><tr><th>${t("Server")}</th><th class="num">${t("Tests")}</th><th class="num">${t("Download")}</th><th class="num">${t("Upload")}</th><th class="num">${t("Latency")}</th></tr></thead><tbody>` +
+        ? `<thead><tr><th>${t("Server")}</th><th class="num">${t("Tests")}</th><th class="num">${t("Download")}</th><th class="num">${t("Upload")}</th><th class="num">${t("Ping")}</th></tr></thead><tbody>` +
           servers.map(([name, rows]) => `<tr><td class="wrap">${esc(name)}</td><td class="num dim">${rows.length}</td><td class="num">${num(mean(values(rows, "downloadMbps")))}</td>` +
             `<td class="num">${num(mean(values(rows, "uploadMbps")))}</td><td class="num">${num(mean(values(rows, "latencyMs")))}</td></tr>`).join("") + "</tbody>"
         : empty;
@@ -447,12 +455,12 @@ enum DashboardPage {
         out += `<text x="${x(tick)}" y="${H - 6}" text-anchor="middle">${daily || midnight ? d.toLocaleDateString([], {month: "short", day: "numeric"}) : fmtClock(d)}</text>`;
       }
       // The second series first, so the main one sits on top.
-      for (const [key, , color] of [...config.series].reverse()) {
+      for (const [key, , color, dashed] of [...config.series].reverse()) {
         const pts = points.filter(p => p[key] != null).map(p => [x(+p.date), y(p[key])]);
         if (!pts.length) continue;
         out += pts.length === 1
           ? `<circle cx="${pts[0][0]}" cy="${pts[0][1]}" r="3" style="fill:var(${color})"/>`
-          : `<polyline points="${pts.map(([px, py]) => `${px.toFixed(1)},${py.toFixed(1)}`).join(" ")}" fill="none" style="stroke:var(${color})" stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/>`;
+          : `<polyline points="${pts.map(([px, py]) => `${px.toFixed(1)},${py.toFixed(1)}`).join(" ")}" fill="none" style="stroke:var(${color})"${dashed ? ' stroke-dasharray="4 4"' : ""} stroke-width="1.75" stroke-linejoin="round" stroke-linecap="round"/>`;
       }
       out += `<line id="cursor" y1="${T}" y2="${H - B}" style="stroke:var(--faint);display:none"/>`;
       out += config.series.map(([key, , color]) => `<circle id="dot-${key}" r="3.5" style="fill:var(${color});stroke:var(--bg);stroke-width:2;display:none"/>`).join("");
