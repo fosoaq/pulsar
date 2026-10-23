@@ -15,6 +15,7 @@ final class DashboardServer {
             guard !Task.isCancelled else { return }
 
             let router = Router()
+            router.add(middleware: LocalHostMiddleware())
             router.get("/") { _, _ in
                 Response(
                     status: .ok,
