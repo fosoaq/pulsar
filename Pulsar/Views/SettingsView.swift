@@ -20,6 +20,19 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
 
+                if model.settings.engine == .ookla {
+                    Toggle(isOn: $model.settings.acceptedOoklaLicense) {
+                        Text("I accept the Speedtest license")
+                        Text("Personal, non-commercial use only. Pulsar passes --accept-license and --accept-gdpr to the CLI on your behalf.")
+                    }
+                    HStack(spacing: 12) {
+                        Link("EULA", destination: URL(string: "https://www.speedtest.net/about/eula")!)
+                        Link("Terms of Use", destination: URL(string: "https://www.speedtest.net/about/terms")!)
+                        Link("Privacy Policy", destination: URL(string: "https://www.speedtest.net/about/privacy")!)
+                    }
+                    .font(.caption)
+                }
+
                 Picker("Run a test every", selection: $model.settings.intervalMinutes) {
                     ForEach(AppSettings.intervalChoices, id: \.self) { minutes in
                         Text(Format.interval(minutes: minutes)).tag(minutes)
@@ -44,8 +57,13 @@ struct SettingsView: View {
                 Toggle("Serve a dashboard on the local network", isOn: $model.settings.dashboardEnabled)
                 TextField("Port", value: validPort($model.settings.dashboardPort), format: .number.grouping(.never))
                     .disabled(!model.settings.dashboardEnabled)
-                if let url = model.dashboardURL {
+                ForEach(model.dashboardURLs, id: \.self) { url in
                     Link(url.absoluteString, destination: url)
+                }
+                if model.settings.dashboardEnabled {
+                    Text("The .local name is this Mac's Local hostname from System Settings → General → Sharing. Use the IP address on devices that cannot open .local names.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
                 }
                 if let error = model.dashboardError {
                     Text(error)

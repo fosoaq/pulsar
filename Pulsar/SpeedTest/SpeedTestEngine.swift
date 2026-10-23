@@ -19,10 +19,10 @@ enum SpeedTestEngineKind: String, Codable, CaseIterable, Identifiable, Sendable 
         }
     }
 
-    func makeEngine() -> any SpeedTestEngine {
+    func makeEngine(acceptingOoklaLicense: Bool) -> any SpeedTestEngine {
         switch self {
         case .networkQuality: NetworkQualityEngine()
-        case .ookla: OoklaEngine()
+        case .ookla: OoklaEngine(acceptLicense: acceptingOoklaLicense)
         }
     }
 }

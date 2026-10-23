@@ -3,6 +3,8 @@ import Foundation
 /// The official Ookla `speedtest` CLI, installed by the user (its license forbids bundling it).
 struct OoklaEngine: SpeedTestEngine {
     let kind = SpeedTestEngineKind.ookla
+    /// Set once the user has agreed in Settings; the CLI refuses to run until then.
+    var acceptLicense = false
 
     static let searchPaths = ["/opt/homebrew/bin/speedtest", "/usr/local/bin/speedtest"]
 
@@ -14,7 +16,7 @@ struct OoklaEngine: SpeedTestEngine {
         guard let path = Self.executablePath else {
             throw SpeedTestError(message: "Ookla speedtest is not installed. Install it with `brew install teamookla/speedtest/speedtest`.")
         }
-        let (output, errorOutput, status) = try await runTool(path, arguments: ["--format=json", "--progress=no"])
+        let (output, errorOutput, status) = try await runTool(path, arguments: ["--format=json", "--progress=no"] + (acceptLicense ? ["--accept-license", "--accept-gdpr"] : []))
 
         // The result is one JSON object per line; errors come as {"type":"log","level":"error",...}.
         let lines = String(decoding: output, as: UTF8.self).split(whereSeparator: \.isNewline)
@@ -25,7 +27,7 @@ struct OoklaEngine: SpeedTestEngine {
 
         let allText = String(decoding: output + errorOutput, as: UTF8.self)
         if allText.contains("--accept-license") {
-            throw SpeedTestError(message: "Accept the Ookla license once in Terminal: speedtest --accept-license --accept-gdpr")
+            throw SpeedTestError(message: "Accept the Speedtest license in Pulsar Settings.")
         }
         if let logged = messages.last(where: { $0.level == "error" })?.message {
             throw SpeedTestError(message: "speedtest: \(logged)")

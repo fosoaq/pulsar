@@ -9,9 +9,13 @@ struct MenuContentView: View {
         VStack(alignment: .leading, spacing: 12) {
             header
 
+            if model.needsOoklaLicense {
+                licenseNotice
+            }
+
             if let result = model.lastSuccess {
                 metrics(result)
-            } else if !model.isRunning {
+            } else if !model.isRunning, !model.needsOoklaLicense {
                 Text("No measurements yet.")
                     .foregroundStyle(.secondary)
             }
@@ -52,12 +56,33 @@ struct MenuContentView: View {
                 Text("Testing…")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+            } else if model.needsOoklaLicense {
+                Text("Paused")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             } else {
                 Text("Next test \(model.nextRunDate, style: .relative)")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
         }
+    }
+
+    private var licenseNotice: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label("Speedtest by Ookla asks you to accept its license before the first test.", systemImage: "doc.text")
+                .font(.callout)
+                .fixedSize(horizontal: false, vertical: true)
+            Button("Review License…") {
+                openSettings()
+                NSApp.activate()
+            }
+            .buttonStyle(.borderedProminent)
+            .controlSize(.small)
+        }
+        .padding(10)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(RoundedRectangle(cornerRadius: 8).fill(Color.accentColor.opacity(0.1)))
     }
 
     private func metrics(_ result: SpeedTestResult) -> some View {
@@ -112,7 +137,7 @@ struct MenuContentView: View {
             MenuRow("Run Test Now", systemImage: "play.fill") {
                 model.runNow()
             }
-            .disabled(model.isRunning)
+            .disabled(model.isRunning || model.needsOoklaLicense)
 
             if let url = model.dashboardURL {
                 MenuRow("Open Dashboard", systemImage: "globe", detail: url.host()) {

@@ -1,7 +1,9 @@
 import Foundation
 
 struct AppSettings: Codable, Equatable, Sendable {
-    var engine = SpeedTestEngineKind.networkQuality
+    /// Ookla when it is installed, so a fresh install works without it too.
+    var engine: SpeedTestEngineKind = OoklaEngine.executablePath != nil ? .ookla : .networkQuality
+    var acceptedOoklaLicense = false
     var intervalMinutes = 60
     var preventSleep = true
     var notifyOnFailure = true
@@ -20,6 +22,7 @@ struct AppSettings: Codable, Equatable, Sendable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let defaults = AppSettings()
         engine = (try? container.decodeIfPresent(SpeedTestEngineKind.self, forKey: .engine)) ?? defaults.engine
+        acceptedOoklaLicense = try container.decodeIfPresent(Bool.self, forKey: .acceptedOoklaLicense) ?? defaults.acceptedOoklaLicense
         intervalMinutes = try container.decodeIfPresent(Int.self, forKey: .intervalMinutes) ?? defaults.intervalMinutes
         preventSleep = try container.decodeIfPresent(Bool.self, forKey: .preventSleep) ?? defaults.preventSleep
         notifyOnFailure = try container.decodeIfPresent(Bool.self, forKey: .notifyOnFailure) ?? defaults.notifyOnFailure

@@ -1,5 +1,6 @@
 import Foundation
 import Observation
+import Darwin
 import SystemConfiguration
 
 /// Owns the history, the schedule and the services the settings switch on and off.
@@ -50,22 +51,32 @@ final class AppModel {
         return last.addingTimeInterval(TimeInterval(settings.intervalMinutes * 60))
     }
 
-    /// The address other devices on the network can open.
+    /// Tests are paused until the user agrees to Ookla's license in Settings.
+    var needsOoklaLicense: Bool {
+        settings.engine == .ookla && !settings.acceptedOoklaLicense
+    }
+
+    /// The `.local` address other devices on the network can open.
     var dashboardURL: URL? {
-        guard settings.dashboardEnabled else { return nil }
-        let host = (SCDynamicStoreCopyLocalHostName(nil) as String?).map { "\($0).local" } ?? "localhost"
-        return URL(string: "http://\(host):\(settings.dashboardPort)")
+        dashboardURLs.first
+    }
+
+    /// The `.local` name from Sharing settings, then the IP address for devices that cannot resolve `.local`.
+    var dashboardURLs: [URL] {
+        guard settings.dashboardEnabled else { return [] }
+        let hosts = [(SCDynamicStoreCopyLocalHostName(nil) as String?).map { "\($0).local" }, Self.primaryIPv4Address()]
+        return hosts.compactMap { $0 }.compactMap { URL(string: "http://\($0):\(settings.dashboardPort)") }
     }
 
     func runNow() {
-        guard !isRunning else { return }
+        guard !isRunning, !needsOoklaLicense else { return }
         isRunning = true
         Task { await performRun() }
     }
 
     private func performRun() async {
         defer { isRunning = false }
-        let engine = settings.engine.makeEngine()
+        let engine = settings.engine.makeEngine(acceptingOoklaLicense: settings.acceptedOoklaLicense)
         var result: SpeedTestResult
         do {
             result = try await engine.run()
@@ -110,6 +121,26 @@ final class AppModel {
         if !isRunning, nextRunDate <= .now {
             runNow()
         }
+    }
+
+    /// The first IPv4 address on an Ethernet or Wi-Fi interface.
+    private static func primaryIPv4Address() -> String? {
+        var list: UnsafeMutablePointer<ifaddrs>?
+        guard getifaddrs(&list) == 0, let first = list else { return nil }
+        defer { freeifaddrs(list) }
+        for entry in sequence(first: first, next: { $0.pointee.ifa_next }) {
+            let flags = Int32(entry.pointee.ifa_flags)
+            guard let address = entry.pointee.ifa_addr,
+                  address.pointee.sa_family == UInt8(AF_INET),
+                  flags & IFF_UP != 0, flags & IFF_LOOPBACK == 0,
+                  String(cString: entry.pointee.ifa_name).hasPrefix("en")
+            else { continue }
+            var host = [CChar](repeating: 0, count: Int(NI_MAXHOST))
+            if getnameinfo(address, socklen_t(address.pointee.sa_len), &host, socklen_t(host.count), nil, 0, NI_NUMERICHOST) == 0 {
+                return host.withUnsafeBufferPointer { String(cString: $0.baseAddress!) }
+            }
+        }
+        return nil
     }
 
     private func applySettings(previous: AppSettings?) {

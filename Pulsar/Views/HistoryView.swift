@@ -24,7 +24,7 @@ struct HistoryView: View {
                 Button("Run Test Now", systemImage: "play.fill") {
                     model.runNow()
                 }
-                .disabled(model.isRunning)
+                .disabled(model.isRunning || model.needsOoklaLicense)
             }
 
             if results.contains(where: \.succeeded) {
