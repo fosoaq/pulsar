@@ -1,0 +1,14 @@
+title: Pulsar
+description: An internet speed monitor for the macOS menu bar.
+baseurl: /pulsar
+url: https://fosoaq.github.io
+markdown: kramdown
+kramdown:
+  input: GFM
+  syntax_highlighter_opts:
+    disable: true
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default

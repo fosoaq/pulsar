@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.url == "/" %}Pulsar — internet speed monitor for macOS{% else %}{{ page.title }} · Pulsar{% endif %}</title>
+<meta name="description" content="{{ page.description | default: site.description }}">
+<link rel="icon" href="{{ '/images/icon.png' | relative_url }}">
+<link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}">
+</head>
+<body>
+{%- assign flat = "" | split: "" -%}
+{%- for group in site.data.nav -%}{%- for item in group.pages -%}{%- assign flat = flat | push: item -%}{%- endfor -%}{%- endfor -%}
+{%- for item in flat -%}
+  {%- if item.url == page.url -%}
+    {%- assign previous_index = forloop.index0 | minus: 1 -%}
+    {%- assign next_index = forloop.index0 | plus: 1 -%}
+    {%- if previous_index >= 0 -%}{%- assign previous = flat[previous_index] -%}{%- endif -%}
+    {%- assign next = flat[next_index] -%}
+  {%- endif -%}
+{%- endfor -%}
+<div class="layout">
+  <aside>
+    <a class="brand" href="{{ '/' | relative_url }}"><img src="{{ '/images/icon.png' | relative_url }}" alt="">Pulsar</a>
+    <details class="menu" open>
+      <summary>Menu</summary>
+      <nav>
+        {%- for group in site.data.nav %}
+        <p class="group">{{ group.title }}</p>
+        <ul>
+          {%- for item in group.pages %}
+          <li><a href="{{ item.url | relative_url }}"{% if item.url == page.url %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
+          {%- endfor %}
+        </ul>
+        {%- endfor %}
+        <p class="group">Links</p>
+        <ul>
+          <li><a href="https://github.com/fosoaq/pulsar/releases/latest">Download</a></li>
+          <li><a href="https://github.com/fosoaq/pulsar">GitHub</a></li>
+        </ul>
+      </nav>
+    </details>
+  </aside>
+  <main>
+    <article>
+      {%- unless page.hide_title %}<h1>{{ page.title }}</h1>{% endunless %}
+      {{ content }}
+    </article>
+    <footer class="pager">
+      {%- if previous %}<a class="previous" href="{{ previous.url | relative_url }}"><span>Previous</span>{{ previous.title }}</a>{% else %}<span></span>{% endif %}
+      {%- if next %}<a class="next" href="{{ next.url | relative_url }}"><span>Next</span>{{ next.title }}</a>{% endif %}
+    </footer>
+  </main>
+</div>
+<script>
+  // The sidebar collapses into a menu on narrow screens and stays open on wide ones.
+  const menu = document.querySelector(".menu");
+  const wide = matchMedia("(min-width: 900px)");
+  const sync = () => { menu.open = wide.matches };
+  wide.addEventListener("change", sync);
+  sync();
+</script>
+</body>
+</html>

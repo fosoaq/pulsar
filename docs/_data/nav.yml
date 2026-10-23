@@ -1,0 +1,31 @@
+# The sidebar, in reading order; previous and next links follow it too.
+- title: Getting started
+  pages:
+    - title: Introduction
+      url: /
+    - title: Installation
+      url: /installation/
+- title: Using Pulsar
+  pages:
+    - title: Menu bar app
+      url: /menu-bar/
+    - title: Speed tests
+      url: /speed-tests/
+    - title: Dashboard
+      url: /dashboard/
+    - title: Notifications
+      url: /notifications/
+- title: Reference
+  pages:
+    - title: HTTP API
+      url: /api/
+    - title: Prometheus
+      url: /prometheus/
+    - title: Data and privacy
+      url: /data/
+- title: Help
+  pages:
+    - title: FAQ
+      url: /faq/
+    - title: Building from source
+      url: /building/
