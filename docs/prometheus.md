@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: prometheus
 title: Prometheus
 permalink: /prometheus/
 ---

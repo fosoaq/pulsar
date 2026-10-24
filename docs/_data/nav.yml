@@ -1,31 +1,21 @@
-# The sidebar, in reading order; previous and next links follow it too.
-- title: Getting started
+# The sidebar in reading order, in both languages; previous and next links follow it too.
+# `ref` pairs a page with its translation.
+- title: { en: Getting started, ru: Начало }
   pages:
-    - title: Introduction
-      url: /
-    - title: Installation
-      url: /installation/
-- title: Using Pulsar
+    - { ref: intro, en: { title: Introduction, url: / }, ru: { title: Введение, url: /ru/ } }
+    - { ref: installation, en: { title: Installation, url: /installation/ }, ru: { title: Установка, url: /ru/installation/ } }
+- title: { en: Using Pulsar, ru: Работа с Pulsar }
   pages:
-    - title: Menu bar app
-      url: /menu-bar/
-    - title: Speed tests
-      url: /speed-tests/
-    - title: Dashboard
-      url: /dashboard/
-    - title: Notifications
-      url: /notifications/
-- title: Reference
+    - { ref: menu-bar, en: { title: Menu bar app, url: /menu-bar/ }, ru: { title: Приложение в строке меню, url: /ru/menu-bar/ } }
+    - { ref: speed-tests, en: { title: Speed tests, url: /speed-tests/ }, ru: { title: Тесты скорости, url: /ru/speed-tests/ } }
+    - { ref: dashboard, en: { title: Dashboard, url: /dashboard/ }, ru: { title: Веб-панель, url: /ru/dashboard/ } }
+    - { ref: notifications, en: { title: Notifications, url: /notifications/ }, ru: { title: Уведомления, url: /ru/notifications/ } }
+- title: { en: Reference, ru: Справочник }
   pages:
-    - title: HTTP API
-      url: /api/
-    - title: Prometheus
-      url: /prometheus/
-    - title: Data and privacy
-      url: /data/
-- title: Help
+    - { ref: api, en: { title: HTTP API, url: /api/ }, ru: { title: HTTP API, url: /ru/api/ } }
+    - { ref: prometheus, en: { title: Prometheus, url: /prometheus/ }, ru: { title: Prometheus, url: /ru/prometheus/ } }
+    - { ref: data, en: { title: Data and privacy, url: /data/ }, ru: { title: Данные и приватность, url: /ru/data/ } }
+- title: { en: Help, ru: Помощь }
   pages:
-    - title: FAQ
-      url: /faq/
-    - title: Building from source
-      url: /building/
+    - { ref: faq, en: { title: FAQ, url: /faq/ }, ru: { title: Вопросы и ответы, url: /ru/faq/ } }
+    - { ref: building, en: { title: Building from source, url: /building/ }, ru: { title: Сборка из исходников, url: /ru/building/ } }

@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: menu-bar
 title: Menu bar app
 permalink: /menu-bar/
 ---
@@ -24,8 +26,8 @@ If the last test failed, the menu shows why in red.
 | Testing | Engine, the Ookla license and server, how often to test, keeping the Mac awake, how long to keep history |
 | Notifications | When to alert, Telegram, ntfy and the webhook, a test notification |
 | Dashboard | Whether to serve it, its `.local` name and port |
-| General | Launch at login |
+| General | Language, launch at login |
 
 ## Language
 
-Pulsar speaks English and Russian and follows the macOS language. To use another language for Pulsar only, open System Settings → General → Language & Region → Applications.
+Pulsar speaks English and Russian. By default it follows the macOS language; Settings → General → **Language** picks English or Russian for Pulsar alone. macOS applies an app's language at launch, so Settings offers to relaunch Pulsar.

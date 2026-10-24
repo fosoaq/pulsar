@@ -1,43 +1,64 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% if page.url == "/" %}Pulsar — internet speed monitor for macOS{% else %}{{ page.title }} · Pulsar{% endif %}</title>
-<meta name="description" content="{{ page.description | default: site.description }}">
-<link rel="icon" href="{{ '/images/icon.png' | relative_url }}">
-<link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
-</head>
-<body>
+{%- assign lang = page.lang | default: "en" -%}
+{%- assign other = "ru" -%}{%- if lang == "ru" -%}{%- assign other = "en" -%}{%- endif -%}
 {%- assign flat = "" | split: "" -%}
 {%- for group in site.data.nav -%}{%- for item in group.pages -%}{%- assign flat = flat | push: item -%}{%- endfor -%}{%- endfor -%}
 {%- for item in flat -%}
-  {%- if item.url == page.url -%}
+  {%- if item.ref == page.ref -%}
+    {%- assign counterpart = item[other].url -%}
     {%- assign previous_index = forloop.index0 | minus: 1 -%}
     {%- assign next_index = forloop.index0 | plus: 1 -%}
     {%- if previous_index >= 0 -%}{%- assign previous = flat[previous_index] -%}{%- endif -%}
     {%- assign next = flat[next_index] -%}
   {%- endif -%}
 {%- endfor -%}
+<!doctype html>
+<html lang="{{ lang }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% if page.ref == "intro" %}Pulsar — {% if lang == "ru" %}мониторинг скорости интернета для macOS{% else %}internet speed monitor for macOS{% endif %}{% else %}{{ page.title }} · Pulsar{% endif %}</title>
+<meta name="description" content="{{ page.description | default: site.description }}">
+<link rel="icon" href="{{ '/images/icon.png' | relative_url }}">
+{%- if counterpart %}
+<link rel="alternate" hreflang="{{ other }}" href="{{ counterpart | absolute_url }}">
+{%- endif %}
+<script>
+  // Apply the saved theme before the first paint, so the page does not flash.
+  try { const theme = localStorage.getItem("theme"); if (theme === "light" || theme === "dark") document.documentElement.dataset.theme = theme } catch (e) {}
+</script>
+<link rel="stylesheet" href="{{ '/assets/style.css' | relative_url }}?v={{ site.time | date: '%s' }}">
+</head>
+<body>
 <div class="layout">
   <aside>
-    <a class="brand" href="{{ '/' | relative_url }}"><img src="{{ '/images/icon.png' | relative_url }}" alt="">Pulsar</a>
+    <a class="brand" href="{{ flat[0][lang].url | relative_url }}"><img src="{{ '/images/icon.png' | relative_url }}" alt="">Pulsar</a>
     <details class="menu" open>
-      <summary>Menu</summary>
+      <summary>{% if lang == "ru" %}Меню{% else %}Menu{% endif %}</summary>
       <nav>
         {%- for group in site.data.nav %}
-        <p class="group">{{ group.title }}</p>
+        <p class="group">{{ group.title[lang] }}</p>
         <ul>
           {%- for item in group.pages %}
-          <li><a href="{{ item.url | relative_url }}"{% if item.url == page.url %} aria-current="page"{% endif %}>{{ item.title }}</a></li>
+          <li><a href="{{ item[lang].url | relative_url }}"{% if item.ref == page.ref %} aria-current="page"{% endif %}>{{ item[lang].title }}</a></li>
           {%- endfor %}
         </ul>
         {%- endfor %}
-        <p class="group">Links</p>
+        <p class="group">{% if lang == "ru" %}Ссылки{% else %}Links{% endif %}</p>
         <ul>
-          <li><a href="https://github.com/fosoaq/pulsar/releases/latest">Download</a></li>
+          <li><a href="https://github.com/fosoaq/pulsar/releases/latest">{% if lang == "ru" %}Скачать{% else %}Download{% endif %}</a></li>
           <li><a href="https://github.com/fosoaq/pulsar">GitHub</a></li>
         </ul>
+        <div class="prefs">
+          <div class="options">
+            <a href="{% if lang == 'en' %}{{ page.url | relative_url }}{% else %}{{ counterpart | relative_url }}{% endif %}"{% if lang == "en" %} aria-current="true"{% endif %} hreflang="en" data-lang="en">English</a>
+            <a href="{% if lang == 'ru' %}{{ page.url | relative_url }}{% else %}{{ counterpart | relative_url }}{% endif %}"{% if lang == "ru" %} aria-current="true"{% endif %} hreflang="ru" data-lang="ru">Русский</a>
+          </div>
+          <div class="options" id="theme">
+            <button data-theme="auto">{% if lang == "ru" %}Авто{% else %}Auto{% endif %}</button>
+            <button data-theme="light">{% if lang == "ru" %}Светлая{% else %}Light{% endif %}</button>
+            <button data-theme="dark">{% if lang == "ru" %}Тёмная{% else %}Dark{% endif %}</button>
+          </div>
+        </div>
       </nav>
     </details>
   </aside>
@@ -47,8 +68,8 @@
       {{ content }}
     </article>
     <footer class="pager">
-      {%- if previous %}<a class="previous" href="{{ previous.url | relative_url }}"><span>Previous</span>{{ previous.title }}</a>{% else %}<span></span>{% endif %}
-      {%- if next %}<a class="next" href="{{ next.url | relative_url }}"><span>Next</span>{{ next.title }}</a>{% endif %}
+      {%- if previous %}<a class="previous" href="{{ previous[lang].url | relative_url }}"><span>{% if lang == "ru" %}Назад{% else %}Previous{% endif %}</span>{{ previous[lang].title }}</a>{% else %}<span></span>{% endif %}
+      {%- if next %}<a class="next" href="{{ next[lang].url | relative_url }}"><span>{% if lang == "ru" %}Далее{% else %}Next{% endif %}</span>{{ next[lang].title }}</a>{% endif %}
     </footer>
   </main>
 </div>
@@ -59,6 +80,17 @@
   const sync = () => { menu.open = wide.matches };
   wide.addEventListener("change", sync);
   sync();
+
+  const root = document.documentElement;
+  const showTheme = () => document.querySelectorAll("#theme button").forEach(b => b.setAttribute("aria-pressed", b.dataset.theme === (root.dataset.theme || "auto")));
+  document.getElementById("theme").addEventListener("click", e => {
+    const button = e.target.closest("button");
+    if (!button) return;
+    if (button.dataset.theme === "auto") delete root.dataset.theme; else root.dataset.theme = button.dataset.theme;
+    try { localStorage.setItem("theme", button.dataset.theme) } catch (e) {}
+    showTheme();
+  });
+  showTheme();
 </script>
 </body>
 </html>

@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: faq
 title: FAQ
 permalink: /faq/
 ---
@@ -29,6 +31,6 @@ Many people are online then, and the provider's network gets busy. The **Downloa
 
 Another device on the network announces the same `.local` name, maybe a second Mac running Pulsar. Pick another name.
 
-## Can I change the dashboard's language?
+## Can I change the language?
 
-It follows the browser's preferred language: English or Russian.
+Yes. The dashboard's footer picks English or Russian, and so does Settings → General in the app. Both follow the device by default.

@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: speed-tests
 title: Speed tests
 permalink: /speed-tests/
 ---

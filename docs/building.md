@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: building
 title: Building from source
 permalink: /building/
 ---

@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: dashboard
 title: Dashboard
 permalink: /dashboard/
 ---
@@ -20,7 +22,9 @@ Some devices, mostly older Android phones, cannot open `.local` names. Settings 
 - **Results** — every test with ping under load, packet loss, server and engine. Filter to failures only, or download the range as CSV.
 - **Statistics** — the number of tests, success rate, tests below your alert threshold, the slowest hour, average, median and range of each value, download by hour of day and averages per server.
 
-The range buttons — 24 hours, 7, 30 or 90 days — apply to every tab. **Run test** starts a test, on the server chosen next to it when Ookla is the engine.
+The range buttons — 24 hours, 7, 30 or 90 days — apply to every tab. **Run test** starts a test, on the server chosen next to it when Ookla is the engine; **Nearest server** lets Ookla pick.
+
+The footer switches the theme (auto, light or dark) and the language (auto, English or Russian). Auto follows the device; the choice is remembered in that browser.
 
 <img class="shot" src="{{ '/images/dashboard-statistics.jpg' | relative_url }}" alt="Statistics tab: success rate, tests below threshold, slowest hour, summary table and download by hour of day" width="1100" height="779" loading="lazy">
 <p class="caption">Statistics. The slowest hour is marked only when it is clearly slower than the rest.</p>

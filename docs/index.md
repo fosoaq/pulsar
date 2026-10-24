@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: intro
 title: Introduction
 permalink: /
 hide_title: true

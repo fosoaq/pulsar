@@ -1,5 +1,7 @@
 :root{--bg:#fafafa;--text:#18181b;--muted:#71717a;--faint:#a1a1aa;--rule:#ececee;--code:#f1f1f2;--accent:#2563eb;color-scheme:light}
-@media (prefers-color-scheme:dark){:root{--bg:#0e0e10;--text:#ededef;--muted:#8b8b93;--faint:#5c5c64;--rule:#1d1d21;--code:#18181b;--accent:#6ea8fe;color-scheme:dark}}
+/* Dark follows the system unless the reader picked a theme in the sidebar. */
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){--bg:#0e0e10;--text:#ededef;--muted:#8b8b93;--faint:#5c5c64;--rule:#1d1d21;--code:#18181b;--accent:#6ea8fe;color-scheme:dark}}
+:root[data-theme=dark]{--bg:#0e0e10;--text:#ededef;--muted:#8b8b93;--faint:#5c5c64;--rule:#1d1d21;--code:#18181b;--accent:#6ea8fe;color-scheme:dark}
 *{box-sizing:border-box}
 html{scroll-padding-top:24px}
 body{margin:0;background:var(--bg);color:var(--text);font:16px/1.7 -apple-system,BlinkMacSystemFont,"Segoe UI",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
@@ -72,3 +74,10 @@ img.shot{display:block;width:100%;height:auto;border-radius:14px;background:var(
 .pager a span{color:var(--faint);font-size:13px;font-weight:400}
 .pager .next{text-align:right;margin-left:auto}
 .pager a:hover{color:var(--accent)}
+
+/* Language and theme switches at the bottom of the sidebar. */
+aside .prefs{margin-top:32px;display:flex;flex-direction:column;gap:8px;font-size:14px}
+aside .options{display:flex;gap:14px}
+aside .options a,aside .options button{background:none;border:0;padding:0;font:inherit;color:var(--faint);text-decoration:none;cursor:pointer}
+aside .options a[aria-current],aside .options button[aria-pressed=true]{color:var(--text)}
+aside .options a:hover,aside .options button:hover{color:var(--text)}

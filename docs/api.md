@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: api
 title: HTTP API
 permalink: /api/
 ---

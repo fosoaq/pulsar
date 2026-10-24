@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: notifications
 title: Notifications
 permalink: /notifications/
 ---

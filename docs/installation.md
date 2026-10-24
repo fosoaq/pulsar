@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: installation
 title: Installation
 permalink: /installation/
 ---

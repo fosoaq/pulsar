@@ -1,4 +1,6 @@
 ---
+lang: en
+ref: data
 title: Data and privacy
 permalink: /data/
 ---
